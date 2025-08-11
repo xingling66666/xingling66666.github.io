@@ -3250,7 +3250,7 @@ function 选择自定义配置(json) {
         bluedoc[5].value = bxjsonMap[myvalue];
         var myvalue = myjson[myjson.length - 1][1]
         reddoc[5].value = bxjsonMap[myvalue];
-        设置自定义项目2(6, 8, json_yglist, bluedoc, reddoc)
+        设置自定义项目2(6, 8, myjson2, bluedoc, reddoc)
     }
 
     if (sjvalue == "all") {
@@ -3264,10 +3264,10 @@ function 选择自定义配置(json) {
         var reddoc = zhenyingDocRed[2].getElementsByTagName("mdui-select")
 
         var myjson = json_fytlist
-        var myjson2 = json_fytlist
+        var myjson2 = json_sjlist
 
         设置自定义项目2(0, 3, myjson, bluedoc, reddoc)
-        设置自定义项目2(3, 5, myjson, bluedoc, reddoc)
+        设置自定义项目2(3, 5, myjson2, bluedoc, reddoc)
     }
 
     var myvalue = json_sjlist[json_sjlist.length - 1]
