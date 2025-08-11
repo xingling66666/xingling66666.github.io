@@ -9,8 +9,8 @@ const urlsToCache = [
     './Smoba.html',
     './opengame.html',
     './logo-200x200.png',
-    'https://unpkg.zhimg.com/mdui@2.1.2/mdui.css',
-    'https://unpkg.zhimg.com/mdui@2.1.2/mdui.global.js',
+    'https://unpkg.com/mdui@2.1.4/mdui.css',
+    'https://unpkg.com/mdui@2.1.4/mdui.global.js',
     './index.js',
     './myjson.js',
     './qrcode.min.js'
