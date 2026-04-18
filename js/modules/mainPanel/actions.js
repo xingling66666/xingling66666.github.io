@@ -145,7 +145,6 @@ async function handleCopyAction(scheme, config, gameServer, mapName, banHeroData
 function handleCopyResult(data, originalUrl) {
     const copyResult = applyCopyRule(data);
     copyText(copyResult);
-    showToast('配置已复制到剪贴板');
     
     if (originalUrl.length >= MAX_QR_LENGTH) {
         showDialog({
