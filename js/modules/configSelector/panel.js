@@ -393,22 +393,22 @@ export const createConfigSelectorPanel = () => {
     };
 
     async function createNewConfig() {
-        const name = await showPrompt({
+        const configName = await showPrompt({
             headline: '新建配置',
             description: '请输入配置名以新建配置'
         });
 
-        if (!name || isJSON(name)) {
-            showSnackbar(isJSON(name) ? '配置名不能是 JSON 格式' : '已取消');
+        if (!configName || isJSON(configName)) {
+            showSnackbar(isJSON(configName) ? '配置名不能是 JSON 格式' : '已取消');
             return;
         }
 
         const configs = storage.getCustomConfigs();
 
-        if (configs[name]) {
+        if (configs[configName]) {
             const confirmed = await showConfirm({
                 headline: '配置已存在',
-                description: `配置 "${name}" 已存在，是否覆盖？`
+                description: `配置 "${configName}" 已存在，是否覆盖？`
             });
             if (!confirmed) return;
         }

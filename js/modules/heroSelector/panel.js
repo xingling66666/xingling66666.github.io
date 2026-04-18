@@ -422,7 +422,8 @@ export const createHeroSelectorPanel = () => {
         const currentValue = document.querySelector(".hero-ban-input")?.value;
         const customHeros = storage.getBanConfigs();
 
-        if (!currentValue || !customHeros[currentValue]) {
+        // '' 会被当做falsy，需要特殊判断，不能使用!customHeros[currentValue]
+        if (!currentValue || customHeros[currentValue] === undefined) {
             showSnackbar(TIPS.MUST_SELECT);
             return;
         }

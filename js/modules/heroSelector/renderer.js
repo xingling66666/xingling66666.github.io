@@ -71,15 +71,31 @@ export const createHeroCard = (heroName) => {
     });
 
     tooltip.appendChild(card);
-
-    // 把 card 挂到 tooltip 上，方便获取
     tooltip.card = card;
 
     return tooltip;
 };
 
-// 获取真正的卡片元素
-const getCard = (el) => el.card || el;
+// 获取所有 mdui-tooltip 元素
+export const getAllTooltips = (container) => {
+    return Array.from(container.children).filter(child => 
+        child.tagName === 'MDUI-TOOLTIP' && !child.classList?.contains('hero-placeholder')
+    );
+};
+
+// 获取所有可用的卡片（基于 tooltip 的显示状态）
+export const getAllAvailableCards = (container) => {
+    const tooltips = getAllTooltips(container);
+    return tooltips
+        .filter(tooltip => tooltip.style.display !== 'none')
+        .map(tooltip => tooltip.card);
+};
+
+// 获取所有卡片（包括隐藏的）
+export const getAllCards = (container) => {
+    const tooltips = getAllTooltips(container);
+    return tooltips.map(tooltip => tooltip.card);
+};
 
 // ============ 列表加载 ============
 
@@ -108,42 +124,41 @@ export const loadHeroList = async (container, heroNames, options = {}) => {
 // ============ 筛选渲染 ============
 
 export const filterCardsByType = (container, heroType) => {
-    const tools = Array.from(container.children);
+    const tooltips = getAllTooltips(container);
 
-    tools.forEach(tool => {
-        const card = getCard(tool);
+    tooltips.forEach(tooltip => {
+        const card = tooltip.card;
         const heroName = card.querySelector('.hero-name')?.textContent;
         const isVisible = shouldShowHeroByType(heroName, heroType);
         card._visible = isVisible;
-        tool.style.display = isVisible ? '' : 'none';
+        tooltip.style.display = isVisible ? '' : 'none';
     });
 
     adjustLayout();
 };
 
 export const filterCardsBySearch = (container, searchKeyword) => {
-    const tools = Array.from(container.children);
+    const tooltips = getAllTooltips(container);
     const lowerKeyword = searchKeyword.toLowerCase();
 
-    tools.forEach(tool => {
-        const card = getCard(tool);
+    tooltips.forEach(tooltip => {
+        const card = tooltip.card;
         if (!card._visible) return;
 
         const heroName = card.querySelector('.hero-name')?.textContent || '';
         const matchesSearch = heroName.toLowerCase().includes(lowerKeyword);
-        tool.style.display = matchesSearch ? '' : 'none';
+        tooltip.style.display = matchesSearch ? '' : 'none';
     });
 
     adjustLayout();
 };
 
 export const resetFilter = (container) => {
-    const tools = Array.from(container.children);
+    const tooltips = getAllTooltips(container);
 
-    tools.forEach(tool => {
-        const card = getCard(tool);
-        if (card._visible) {
-            tool.style.display = '';
+    tooltips.forEach(tooltip => {
+        if (tooltip.card._visible) {
+            tooltip.style.display = '';
         }
     });
 
@@ -156,64 +171,53 @@ export const selectHeroes = (container, heroString) => {
     if (!heroString) return;
 
     const selectedHeroes = parseHeroString(heroString);
-    const tools = Array.from(container.children);
+    const cards = getAllAvailableCards(container);
 
-    tools.forEach(tool => {
-        const card = getCard(tool);
+    cards.forEach(card => {
         const heroName = card.querySelector('.hero-name')?.textContent;
         card.setSelected(selectedHeroes.includes(heroName));
     });
 };
 
 export const getSelectedHeroes = (container) => {
-    const tools = Array.from(container.children);
-    const selectedNames = tools
-        .filter(tool => getCard(tool)._selected)
-        .map(tool => getCard(tool).querySelector('.hero-name')?.textContent)
+    const cards = getAllAvailableCards(container);
+    const selectedNames = cards
+        .filter(card => card._selected)
+        .map(card => card.querySelector('.hero-name')?.textContent)
         .filter(Boolean);
 
     return selectedNames.join(' ');
 };
 
 export const selectAllCards = (container) => {
-    const tools = Array.from(container.children);
-    tools.forEach(tool => {
-        const card = getCard(tool);
-        if (card._visible) card.setSelected(true);
-    });
+    const cards = getAllAvailableCards(container);
+    cards.forEach(card => card.setSelected(true));
 };
 
 export const invertCardSelection = (container) => {
-    const tools = Array.from(container.children);
-    tools.forEach(tool => {
-        const card = getCard(tool);
-        if (card._visible) card.setSelected(!card._selected);
-    });
+    const cards = getAllAvailableCards(container);
+    cards.forEach(card => card.setSelected(!card._selected));
 };
 
 export const clearCardSelection = (container) => {
-    const tools = Array.from(container.children);
-    tools.forEach(tool => {
-        getCard(tool).setSelected(false);
-    });
+    const cards = getAllCards(container);
+    cards.forEach(card => card.setSelected(false));
 };
 
 // ============ 布局调整 ============
-const getLayoutInfo = (container) => {
-    const tools = Array.from(container.children).filter(child => {
-        if (child.classList?.contains('hero-placeholder')) return false;
-        return getCard(child)._visible;
-    });
-    if (tools.length === 0) return null;
 
-    const firstTool = tools[0];
-    const card = getCard(firstTool);
+const getLayoutInfo = (container) => {
+    const tooltips = getAllTooltips(container).filter(tooltip => tooltip.style.display !== 'none');
+    if (tooltips.length === 0) return null;
+
+    const firstTooltip = tooltips[0];
+    const card = firstTooltip.card;
     const cardWidth = card.offsetWidth;
     if (cardWidth === 0) return null;
 
     const containerWidth = container.clientWidth;
     const cardsPerRow = Math.floor(containerWidth / cardWidth);
-    const lastRowCount = tools.length % cardsPerRow || cardsPerRow;
+    const lastRowCount = tooltips.length % cardsPerRow || cardsPerRow;
 
     const computedStyle = window.getComputedStyle(card);
 
@@ -287,6 +291,7 @@ export const adjustLayout = () => {
 };
 
 // ============ 类型筛选器渲染 ============
+
 export const renderTypeFilter = (container, currentType = 'all') => {
     container.innerHTML = '';
 

@@ -1,5 +1,5 @@
 // utils/config/validator.js
-import { DEFAULT_VICTORY, isEffectiveValueByKey } from './constants.js';
+import { TAB_KEYS, DEFAULT_VICTORY, isEffectiveValueByKey } from './constants.js';
 
 // ============ 配置检测 ============
 
@@ -11,7 +11,7 @@ export function checkHasCustomConfig(config) {
 
     const hasCustom = TAB_KEYS.some(key => checkPanelHasConfig(config[key]));
     const hasVictory = config.victory && String(config.victory) !== String(DEFAULT_VICTORY);
-    
+
     return hasCustom || hasVictory;
 }
 
@@ -27,14 +27,14 @@ export function checkPanelHasConfig(panel) {
     if (mode === 'all') {
         return Object.entries(data).some(([key, val]) => isEffective(val, key));
     }
-    
+
     if (mode === 'team') {
         const hasSide = (side) => data[side] && Object.entries(data[side]).some(([key, val]) => isEffective(val, key));
         return hasSide('blue') || hasSide('red');
     }
-    
+
     if (mode === 'player') {
-        const hasSide = (side) => data[side] && Object.entries(data[side]).some(([key, arr]) => 
+        const hasSide = (side) => data[side] && Object.entries(data[side]).some(([key, arr]) =>
             Array.isArray(arr) && arr.some(val => isEffective(val, key))
         );
         return hasSide('blue') || hasSide('red');
