@@ -21,6 +21,20 @@ function isLocalEnvironment() {
 }
 
 /**
+ * 等待 Service Worker 激活
+ * @param {number} maxRetries - 最大重试次数，默认 30 次（3秒）
+ * @returns {Promise<ServiceWorker|null>} 返回激活的 SW 实例
+ */
+async function waitForActive(maxRetries = 30) {
+    for (let i = 0; i < maxRetries; i++) {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration?.active) return registration.active;
+        await new Promise(r => setTimeout(r, 100));
+    }
+    return null;
+}
+
+/**
  * 注册 Service Worker
  */
 export async function registerSW(swPath = './sw.js') {
@@ -50,19 +64,19 @@ export async function registerSW(swPath = './sw.js') {
 export async function getSWVersion() {
     if (isLocalEnvironment()) return 'local-dev';
     
-    const registration = await navigator.serviceWorker.getRegistration();
-    if (!registration?.active) return null;
+    const active = await waitForActive();
+    if (!active) return null;
     
     return new Promise((resolve) => {
         const channel = new MessageChannel();
-        const timeout = setTimeout(() => resolve(null), 3000);
+        const timeout = setTimeout(() => resolve(null), 1000);
         
         channel.port1.onmessage = (e) => {
             clearTimeout(timeout);
             resolve(e.data.version);
         };
         
-        registration.active.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
+        active.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
     });
 }
 
@@ -90,10 +104,14 @@ export async function skipWaiting() {
     
     return new Promise((resolve) => {
         const channel = new MessageChannel();
+        const timeout = setTimeout(() => resolve(false), 3000);
+        
         channel.port1.onmessage = (e) => {
+            clearTimeout(timeout);
             if (e.data.success) location.reload();
             resolve(e.data.success);
         };
+        
         registration.waiting.postMessage({ type: 'SKIP_WAITING' }, [channel.port2]);
     });
 }
@@ -104,13 +122,19 @@ export async function skipWaiting() {
 export async function clearAllCache() {
     if (isLocalEnvironment()) return false;
     
-    const registration = await navigator.serviceWorker.getRegistration();
-    if (!registration?.active) return false;
+    const active = await waitForActive();
+    if (!active) return false;
     
     return new Promise((resolve) => {
         const channel = new MessageChannel();
-        channel.port1.onmessage = (e) => resolve(e.data.success);
-        registration.active.postMessage({ type: 'CLEAR_CACHE' }, [channel.port2]);
+        const timeout = setTimeout(() => resolve(false), 3000);
+        
+        channel.port1.onmessage = (e) => {
+            clearTimeout(timeout);
+            resolve(e.data.success);
+        };
+        
+        active.postMessage({ type: 'CLEAR_CACHE' }, [channel.port2]);
     });
 }
 
