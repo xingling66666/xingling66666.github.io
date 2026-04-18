@@ -1,6 +1,5 @@
 // app/main.js - 应用主入口
 
-
 import * as uiManager from '../ui/uiManager.js';
 import { initHeroData } from '../data/heroData.js';
 import { TIPS } from '../config/constants.js';
@@ -43,8 +42,15 @@ async function initApp() {
         // 3. 初始化数据
         await initData();
 
-        // 4. 初始化 UI
+        // 4. 初始化 UI（包含主题加载）
+        // 说明：uiManager.init() 会调用 themePicker 模块的 restoreTheme 函数，
+        // 该函数负责恢复用户上次选择的主题或应用默认主题，确保主题样式完全加载
         await uiManager.init();
+
+        // 5. 主题和 UI 加载完成后显示 body
+        // 说明：为防止主题切换时的样式闪烁问题，HTML 中 body 标签设置了内联样式 style="display: none;"
+        // 此时所有主题样式、UI 组件均已加载完成，将 body 设为可见，确保用户看到的是完整的、已应用主题的界面
+        showBody();
 
         appState.initialized = true;
         console.log('✓ 应用初始化完成');
@@ -61,6 +67,19 @@ async function initApp() {
 }
 
 /**
+ * 显示 body 内容（在主题和 UI 加载完成后调用）
+ * 当主题和 UI 完全加载后，将 display 设为 unset，恢复 body 正常显示
+ */
+function showBody() {
+    const body = document.body;
+    if (body) {
+        // 将 display 从 hidden 恢复为 unset（即浏览器默认值）
+        body.style.display = 'unset';
+        console.log('✓ body 已显示（主题和 UI 加载完成）');
+    }
+}
+
+/**
  * 绑定窗口事件
  */
 function bindWindowEvents() {
@@ -72,12 +91,6 @@ function bindWindowEvents() {
  * 窗口加载完成
  */
 async function onWindowLoad() {
-    // 显示主卡片
-    const mainCard = document.querySelector('.main-card');
-    if (mainCard) {
-        mainCard.style.visibility = 'unset';
-    }
-
     // 设置标题
     const title = document.querySelector('.app-title');
     const version = await getSWVersion();

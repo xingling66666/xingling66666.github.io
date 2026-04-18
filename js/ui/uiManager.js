@@ -34,26 +34,12 @@ export async function init() {
         // 5. 初始化配置选择器
         await initConfigSelector();
         console.log('  ✓ 配置选择器');
-
-        // 6. 恢复用户偏好
-        restorePreferences();
-
         console.log('✓ UI 组件初始化完成');
 
     } catch (error) {
         console.error('✗ UI 初始化失败:', error);
         showSnackbar('界面初始化失败，请刷新页面重试');
         throw error;
-    }
-}
-
-/**
- * 恢复用户偏好设置
- */
-function restorePreferences() {
-    const themeColor = storage.getThemeColor();
-    if (themeColor && typeof mdui !== 'undefined') {
-        mdui.setColorScheme(themeColor);
     }
 }
 
