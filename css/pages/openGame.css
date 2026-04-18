@@ -1,0 +1,218 @@
+/* openGame.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    background: #fffbfe;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.container {
+    max-width: 400px;
+    width: 100%;
+    background: #fffbfe;
+    border-radius: 28px;
+    padding: 24px 20px;
+}
+
+.info-card {
+    background: #f7f2fa;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.info-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6750a4;
+    margin-bottom: 8px;
+}
+
+.info-content {
+    font-size: 16px;
+    font-weight: 400;
+    color: #1d1b20;
+    line-height: 1.5;
+}
+
+.hint-text {
+    font-size: 13px;
+    color: #6750a4;
+    margin-top: 8px;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #6750a4;
+    color: white;
+}
+
+.btn-primary:active {
+    background: #4a3a7a;
+}
+
+.btn-secondary {
+    background: #e8def8;
+    color: #1d1b20;
+}
+
+.btn-secondary:active {
+    background: #d0c4e8;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #6750a4;
+    border: 1px solid #79747e;
+}
+
+.btn-outline:active {
+    background: #f7f2fa;
+}
+
+.divider {
+    height: 1px;
+    background: #cac4d0;
+    margin: 16px 0;
+}
+
+/* 详情面板 */
+.detail-panel {
+    margin-top: 16px;
+    background: #f7f2fa;
+    border-radius: 16px;
+    overflow: hidden;
+    display: none;
+}
+
+.detail-panel.show {
+    display: block;
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #cac4d0;
+}
+
+.detail-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d1b20;
+}
+
+.detail-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: #6750a4;
+    font-size: 20px;
+}
+
+.detail-close:active {
+    background: rgba(103, 80, 164, 0.12);
+}
+
+.detail-content {
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #49454f;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.detail-actions {
+    padding: 12px 16px;
+    border-top: 1px solid #cac4d0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    background: #6750a4;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-small:active {
+    background: #4a3a7a;
+}
+
+/* Toast 提示 */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #313033;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 图标 */
+.icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+}

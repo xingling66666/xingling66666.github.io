@@ -1,0 +1,107 @@
+/* theme.css - 主题选择器样式 */
+
+/* ===== 主题选择卡片 ===== */
+.theme-card {
+    padding: 1rem;
+    min-width: 260px;
+}
+
+.theme-picker {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== 主题分区 ===== */
+.theme-section {
+    margin-bottom: 1rem;
+}
+
+.theme-section:last-child {
+    margin-bottom: 0;
+}
+
+.theme-label {
+    color: rgb(var(--mdui-color-on-surface-variant));
+    font-size: 14px;
+    margin-bottom: 0.5rem;
+    cursor: default;
+}
+
+/* ===== 预设颜色列表 ===== */
+.theme-preset-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.theme-preset {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--mdui-shape-corner-small);
+    border: 1px solid rgb(var(--mdui-color-outline));
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* ===== 自定义颜色选择器 ===== */
+.theme-custom {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--mdui-shape-corner-small);
+    border: 1px solid rgb(var(--mdui-color-outline));
+    cursor: pointer;
+    padding: 2px;
+}
+
+.theme-custom::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.theme-custom::-webkit-color-swatch {
+    border: none;
+    border-radius: calc(var(--mdui-shape-corner-small) - 2px);
+}
+
+/* ===== 壁纸提取 ===== */
+.theme-wallpaper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 8rem;
+    border-radius: var(--mdui-shape-corner-small);
+    border: 1px solid rgb(var(--mdui-color-outline));
+    background-color: rgb(var(--mdui-color-surface-container));
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.theme-wallpaper:hover {
+    border-color: rgb(var(--mdui-color-primary));
+}
+
+.theme-wallpaper span {
+    color: rgb(var(--mdui-color-on-surface-variant));
+    text-shadow: 0 0 4px rgb(var(--mdui-color-surface));
+}
+
+.theme-image-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* ===== 主题图标 ===== */
+.theme-trigger .theme-icon-filled {
+    display: none;
+}
+
+.theme-dropdown[open] .theme-icon-outlined {
+    display: none;
+}
+
+.theme-dropdown[open] .theme-icon-filled {
+    display: inline-block;
+}

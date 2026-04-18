@@ -1,0 +1,213 @@
+/* components.css - 组件样式 */
+
+/* ===== 表单输入 ===== */
+.form-input {
+    padding: 10px;
+    width: 100%;
+}
+
+/* ===== 按钮样式 ===== */
+.hero-btn,
+.custom-btn {
+    flex: 0 0 calc((100% - 10px) / 3);
+    max-width: calc((100% - 10px) / 3);
+    margin: 0 !important;
+}
+
+/* ===== 英雄卡片 ===== */
+.hero-card {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    background-color: rgb(var(--mdui-color-surface));
+    border-radius: var(--mdui-shape-corner-small);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.hero-card:hover {
+    background-color: rgb(var(--mdui-color-surface-container-high));
+}
+
+.hero-card[data-selected="true"] {
+    background-color: rgb(var(--mdui-color-secondary-container));
+}
+
+.hero-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.hero-avatar[data-error="true"] {
+    background-color: rgb(var(--mdui-color-surface-container));
+}
+
+.hero-name {
+    margin-top: 2px;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.2;
+    color: rgb(var(--mdui-color-on-surface));
+    max-width: 56px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hero-check {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    font-size: 18px;
+    color: rgb(var(--mdui-color-error));
+    visibility: hidden;
+    border-top-left-radius: 4px;
+}
+
+.hero-card[data-selected="true"] .hero-check {
+    visibility: visible;
+}
+
+/* 占位卡片 */
+.hero-placeholder {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ===== 搜索输入 ===== */
+.hero-search-input {
+    width: 100%;
+    padding: 10px;
+}
+
+/* ===== 配置下拉 ===== */
+.hero-scheme-dropdown,
+.custom-scheme-dropdown {
+    width: 100%;
+    padding: 5px 0;
+}
+
+.hero-scheme-trigger,
+.custom-scheme-trigger {
+    width: 100%;
+}
+
+/* ===== 配置选择卡片 ===== */
+.config-select {
+    padding: 8px 0;
+}
+
+.config-select mdui-select {
+    width: 100%;
+}
+
+/* ===== 高级设置输入 ===== */
+.advanced-map-input,
+.advanced-hero-input,
+.advanced-random-gen,
+.advanced-random-shuffle {
+    padding: 10px 0;
+    width: 100%;
+}
+
+/* ===== 弹窗样式 ===== */
+.hero-selector-dialog::part(panel),
+.custom-config-dialog::part(panel) {
+    max-height: 100vh;
+}
+
+.hero-selector-dialog mdui-top-app-bar,
+.custom-config-dialog mdui-top-app-bar {
+    flex-shrink: 0;
+}
+
+/* ===== 关闭按钮 ===== */
+.dialog-close-btn {
+    margin-right: 8px;
+}
+
+/* ===== 加载状态 ===== */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* ===== 提示卡片 ===== */
+.tip-card {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: rgb(var(--mdui-color-surface-container));
+    border-radius: var(--mdui-shape-corner-small);
+}
+
+/* ===== 复制规则弹窗样式 ===== */
+.copy-rule-dialog-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.copy-rule-tip {
+    background-color: #f5f5f5;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: #666;
+}
+
+.copy-rule-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: monospace;
+    resize: vertical;
+    margin-bottom: 10px;
+}
+
+.copy-rule-preview-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.copy-rule-preview {
+    background-color: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    word-break: break-all;
+    max-height: 100px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    white-space: pre-wrap;
+}
+
+.copy-rule-btn-group {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.copy-rule-preset-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}

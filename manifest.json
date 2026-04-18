@@ -9,8 +9,10 @@
             "sizes": "200x200"
         }
     ],
-    "start_url": "https://wzzdy.zeabur.app/",
+    "start_url": "./",
     "background_color": "#FFFFFF",
     "theme_color": "#FFFFFF",
-    "display": "fullscreen"
+    "display": "fullscreen",
+    "scope": "./",
+    "orientation": "portrait"
 }

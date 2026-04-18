@@ -1,0 +1,132 @@
+/* base.css - 基础重置样式 */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans CJK SC', 'Noto Sans SC',
+        'Segoe UI', system-ui, Roboto, 'PingFang SC', 'Hiragino Sans GB',
+        'Source Han Sans SC', 'WenQuanYi Micro Hei', 'WenQuanYi Zen Hei',
+        'Helvetica Neue', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    padding: 0;
+    line-height: 1.5;
+}
+
+/* 未定义的自定义元素隐藏 */
+:not(:defined) {
+    visibility: hidden;
+}
+
+/* 防止点击弹窗宽度变化 */
+.mdui-lock-screen {
+    width: unset !important;
+}
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(var(--mdui-color-surface-container));
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(var(--mdui-color-outline));
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--mdui-color-outline-variant));
+}
+
+/* ===== 文字相关 ===== */
+.dialog-tip {
+    color: rgb(var(--mdui-color-on-surface-variant));
+    font-size: 14px;
+    padding: 10px 0;
+    margin: 0;
+}
+
+/* ===== 工具类 ===== */
+.hidden {
+    display: none !important;
+}
+
+.invisible {
+    visibility: hidden !important;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-1 {
+    gap: 0.25rem;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+.p-1 {
+    padding: 0.25rem;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.p-3 {
+    padding: 1rem;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.m-1 {
+    margin: 0.25rem;
+}
+
+.m-2 {
+    margin: 0.5rem;
+}
+
+.m-3 {
+    margin: 1rem;
+}

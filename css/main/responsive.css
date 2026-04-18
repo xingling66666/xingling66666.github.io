@@ -1,0 +1,96 @@
+/* responsive.css - 响应式样式 */
+
+/* ===== 平板及以上 ===== */
+@media (min-width: 601px) {
+    .app-layout {
+        max-width: 600px;
+    }
+    
+    .hero-card {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .hero-avatar {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* ===== 桌面大屏 ===== */
+@media (min-width: 801px) {
+    .app-layout {
+        max-width: 800px;
+    }
+    
+    /* 弹窗宽度 */
+    .hero-selector-dialog[fullscreen],
+    .custom-config-dialog[fullscreen],
+    .advanced-edit-dialog[fullscreen] {
+        width: 55vmax;
+        margin: auto;
+    }
+    
+    /* 按钮尺寸调整 */
+    .hero-btn,
+    .custom-btn {
+        flex: 0 0 calc((100% - 15px) / 4);
+        max-width: calc((100% - 15px) / 4);
+    }
+}
+
+/* ===== 移动端优化 ===== */
+@media (max-width: 600px) {
+    .main-buttons .action-btn {
+        font-size: 13px;
+    }
+    
+    .hero-type-filter mdui-radio {
+        font-size: 13px;
+    }
+    
+    .dialog-tip {
+        font-size: 12px;
+    }
+}
+
+/* ===== 超小屏幕 ===== */
+@media (max-width: 360px) {
+    .hero-card {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .hero-avatar {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .hero-name {
+        font-size: 10px;
+    }
+    
+    .main-buttons .action-btn {
+        font-size: 12px;
+    }
+}
+
+/* ===== 深色模式适配 ===== */
+@media (prefers-color-scheme: dark) {
+    .theme-wallpaper span {
+        text-shadow: 0 0 4px rgb(0, 0, 0);
+    }
+}
+
+/* ===== 打印样式 ===== */
+@media print {
+    .app-header,
+    .button-group,
+    .theme-picker-container {
+        display: none;
+    }
+    
+    .main-card {
+        box-shadow: none;
+    }
+}

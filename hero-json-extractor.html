@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JSON提取和整合</title>
+    <meta charset="UTF-8">
+    <link crossorigin="" rel="shortcut icon" type="image/x-icon" href="./logo-200x200.png">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+</head>
+
+<body>
+    <h1>JSON提取和整合</h1>
+    <label for="jsonInput">输入JSON字符串: </label>
+    <input type="text" id="jsonInput" style="width: 80%; padding: 8px; margin: 10px 0;">
+    <br>
+    <button onclick="extractAndMerge()">提取和整合</button>
+    <button onclick="openDataSource()">跳转数据源</button>
+    <div id="output"></div>
+
+    <script>
+        // DOM 元素
+        const jsonInput = document.getElementById('jsonInput');
+        const outputDiv = document.getElementById('output');
+
+        // 提取并整合 JSON
+        function extractAndMerge() {
+            const rawJson = jsonInput.value.trim();
+            if (!rawJson) {
+                alert('请输入JSON数据');
+                return;
+            }
+
+            try {
+                const heroList = JSON.parse(rawJson);
+                const result = transformHeroList(heroList);
+                outputDiv.textContent = JSON.stringify(result);
+            } catch (err) {
+                alert('JSON解析失败: ' + err.message);
+            }
+        }
+
+        // 转换英雄列表
+        function transformHeroList(heroList) {
+            const result = {};
+            
+            for (const hero of heroList) {
+                const { ename, cname, hero_type, hero_type2 = '' } = hero;
+                const idPart = `${ename}|`;
+                const typePart = hero_type2 ? `${hero_type}|${hero_type2}` : `${hero_type}`;
+                result[cname] = idPart + typePart;
+            }
+            
+            return result;
+        }
+
+        // 打开数据源
+        function openDataSource() {
+            window.open('https://pvp.qq.com/web201605/js/herolist.json', '_blank');
+        }
+    </script>
+</body>
+
+</html>

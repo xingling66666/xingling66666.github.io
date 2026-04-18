@@ -1,0 +1,85 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    background: #fffbfe;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.container {
+    max-width: 360px;
+    width: 100%;
+    background: #fffbfe;
+    border-radius: 28px;
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+    background: #6750a4;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon svg {
+    width: 32px;
+    height: 32px;
+    stroke: white;
+    stroke-width: 1.8;
+    fill: none;
+}
+
+h1 {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 28px;
+    color: #1d1b20;
+    margin-bottom: 8px;
+    letter-spacing: 0;
+}
+
+p {
+    font-size: 14px;
+    line-height: 20px;
+    color: #49454f;
+    margin-bottom: 28px;
+    font-weight: 400;
+}
+
+button {
+    width: 100%;
+    padding: 12px 24px;
+    background: #6750a4;
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+button:active {
+    background: #4a3a7a;
+}
+
+.hint {
+    font-size: 12px;
+    color: #6750a4;
+    font-weight: 400;
+}

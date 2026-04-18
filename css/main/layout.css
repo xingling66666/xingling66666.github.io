@@ -1,0 +1,132 @@
+/* layout.css - 布局样式 */
+
+/* ===== 主布局 ===== */
+.app-layout {
+    margin: auto;
+    max-width: 100vmin;
+}
+
+.app-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+}
+
+.app-main {
+    padding: 64px 0 0;
+}
+
+/* ===== 主卡片 ===== */
+.main-card {
+    visibility: hidden;
+    margin: 20px 0;
+}
+
+/* ===== 游戏模式选择 ===== */
+.game-server-group {
+    margin: 10px;
+}
+
+/* ===== 表单菜单 ===== */
+.form-menu {
+    margin: 0 10px;
+    max-height: 50vh;
+    overflow: auto;
+}
+
+.form-menu .search-input {
+    padding: 0 5px;
+}
+
+/* ===== 按钮组 ===== */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px 5px;
+}
+
+.main-buttons .action-btn {
+    flex: 0 0 calc((100% - 10px) / 3);
+    max-width: calc((100% - 10px) / 3);
+}
+
+.main-buttons .action-btn[full-width] {
+    flex: 1;
+    max-width: unset;
+}
+
+/* ===== 配置面板 ===== */
+.config-tabs {
+    padding: 10px 0;
+}
+
+.config-panel {
+    padding: 10px 0;
+}
+
+.config-mode-group {
+    padding: 10px 0;
+}
+
+.team-selector {
+    width: 100%;
+    padding: 10px 0;
+}
+
+.team-selector mdui-radio {
+    margin-right: 20px;
+}
+
+/* 选手选择器 */
+.player-selector {
+    width: 100%;
+    padding: 10px 0;
+}
+
+.player-selector mdui-radio {
+    margin-right: 15px;
+}
+
+/* ===== 英雄网格 ===== */
+.hero-grid-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 2px;
+    padding: 10px 0;
+    min-height: 200px;
+}
+
+/* ===== 英雄类型筛选 ===== */
+.hero-type-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px 0;
+}
+
+.hero-type-filter mdui-radio {
+    flex: 0 0 auto;
+}
+
+/* ===== 配置容器 ===== */
+.config-global-container,
+.config-team-container,
+.config-player-container {
+    width: 100%;
+}
+
+.config-team-blue,
+.config-team-red,
+.config-player-blue,
+.config-player-red {
+    width: 100%;
+}
+
+/* ===== 主题选择器容器 ===== */
+.theme-picker-container {
+    margin-left: auto;
+}
