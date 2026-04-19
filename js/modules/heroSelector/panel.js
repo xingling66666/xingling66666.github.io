@@ -211,6 +211,8 @@ export const createHeroSelectorPanel = () => {
     const bindDialogClose = () => {
         state.dialog.addEventListener('close', (e) => {
             if (e.target === state.dialog) {
+                const heroTypeFilter = document.querySelector(".hero-type-filter");
+                if (heroTypeFilter) heroTypeFilter.value = 'all';
                 getDialogBody(state.dialog)?.scrollTo(0, 0);
             }
         });

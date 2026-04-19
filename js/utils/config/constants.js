@@ -333,68 +333,6 @@ export const ROUTE_WEB_DEFAULT = 7;
 export const getFlatConfigKeys = () => Object.keys(FLAT_CONFIG);
 export const getFlatConfig = (id) => FLAT_CONFIG[id];
 
-export const getDefaultAdvancedConfig = () => {
-    const config = { randomGen: {}, randomShuffle: {} };
-
-    Object.entries(FLAT_CONFIG).forEach(([id, meta]) => {
-        config.randomGen[id] = {
-            enabledPositions: [...meta.positions],
-            enabledValues: [...meta.values]
-        };
-        config.randomShuffle[id] = {
-            shufflePositions: []
-        };
-    });
-
-    return config;
-};
-
-export const normalizeAdvancedConfig = (config) => {
-    const defaultConfig = getDefaultAdvancedConfig();
-
-    if (!config || typeof config !== 'object') {
-        return defaultConfig;
-    }
-
-    const normalized = { randomGen: {}, randomShuffle: {} };
-
-    Object.keys(defaultConfig.randomGen).forEach(id => {
-        const defaultGen = defaultConfig.randomGen[id];
-        const defaultShuffle = defaultConfig.randomShuffle[id];
-        const userGen = config.randomGen?.[id];
-        const userShuffle = config.randomShuffle?.[id];
-
-        normalized.randomGen[id] = {
-            enabledPositions: Array.isArray(userGen?.enabledPositions)
-                ? userGen.enabledPositions.filter(p => defaultGen.enabledPositions.includes(p))
-                : [...defaultGen.enabledPositions],
-            enabledValues: Array.isArray(userGen?.enabledValues)
-                ? userGen.enabledValues.filter(v => defaultGen.enabledValues.includes(v))
-                : [...defaultGen.enabledValues]
-        };
-
-        const maxPosition = defaultGen.enabledPositions.length - 1;
-        normalized.randomShuffle[id] = {
-            shufflePositions: Array.isArray(userShuffle?.shufflePositions)
-                ? userShuffle.shufflePositions.filter(p => p >= 0 && p <= maxPosition)
-                : [...defaultShuffle.shufflePositions]
-        };
-    });
-
-    return normalized;
-};
-
-export const getEffectiveConfig = (id, advancedConfig, mode = 'randomGen') => {
-    const defaultConfig = getDefaultAdvancedConfig();
-    const attrConfig = advancedConfig?.[mode]?.[id] || defaultConfig[mode][id];
-
-    return {
-        positions: attrConfig.enabledPositions || [],
-        values: attrConfig.enabledValues || [],
-        shufflePositions: attrConfig.shufflePositions || []
-    };
-};
-
 export const getGameIds = (attr, side, position = 0) => {
     if (!attr) return [];
 
