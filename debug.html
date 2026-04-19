@@ -23,8 +23,7 @@
 
     <hr>
 
-    <button id="unregisterSW">注销service workers</button>
-    <button id="unregisterReload">注销并重载</button>
+    <button id="unregisterClearCache">注销 service workers 并清除缓存</button>
     <div id="swMsg" style="font-size:12px;color:gray;margin-top:5px"></div>
 
     <hr>
@@ -52,8 +51,7 @@
             var importArea = document.getElementById('importArea');
             var mergeBtn = document.getElementById('mergeBtn');
             var replaceBtn = document.getElementById('replaceBtn');
-            var unregisterSW = document.getElementById('unregisterSW');
-            var unregisterReload = document.getElementById('unregisterReload');
+            var unregisterClearCache = document.getElementById('unregisterClearCache');
             var swMsg = document.getElementById('swMsg');
 
             // 随机19位数字
@@ -63,6 +61,27 @@
                     id += Math.floor(Math.random() * 10);
                 }
                 return id;
+            }
+
+            // 获取随机默认JSON数据
+            function getDefaultData() {
+                var roomId = randomRoomId();
+                return {
+                    "createType": "2",
+                    "mapID": "20011",
+                    "mapType": "1",
+                    "teamerNum": "10",
+                    "ullRoomid": roomId,
+                    "ullExternUid": roomId,
+                    "roomName": "1",
+                    "platType": "2",
+                    "campid": "1",
+                    "AddPos": "0",
+                    "AddType": "2",
+                    "banHerosCamp1": [],
+                    "banHerosCamp2": [],
+                    "customDefineItems": ["0:6", "28:6"]
+                };
             }
 
             // 获取json数据
@@ -148,42 +167,44 @@
                 }
             };
 
-            // 注销service worker
-            unregisterSW.onclick = async function() {
+            // 清除所有缓存
+            async function clearAllCaches() {
+                if ('caches' in window) {
+                    var cacheNames = await caches.keys();
+                    var deletePromises = cacheNames.map(function(name) {
+                        console.log('删除缓存:', name);
+                        return caches.delete(name);
+                    });
+                    await Promise.all(deletePromises);
+                    return cacheNames.length;
+                }
+                return 0;
+            }
+
+            // 注销service worker并清除所有缓存
+            unregisterClearCache.onclick = async function() {
                 if (!navigator.serviceWorker) {
                     alert('当前浏览器不支持service worker');
                     swMsg.innerText = '不支持sw';
                     return;
                 }
                 try {
+                    // 1. 清除所有缓存
+                    var cacheCount = await clearAllCaches();
+                    swMsg.innerText = '已删除 ' + cacheCount + ' 个缓存\n';
+                    
+                    // 2. 注销所有service worker
                     var regs = await navigator.serviceWorker.getRegistrations();
-                    var cnt = 0;
+                    var swCount = 0;
                     for (var r of regs) {
                         await r.unregister();
-                        cnt++;
+                        swCount++;
                     }
-                    alert('已注销 ' + cnt + ' 个service worker');
-                    swMsg.innerText = '已注销 ' + cnt + ' 个sw';
+                    swMsg.innerText += '已注销 ' + swCount + ' 个service worker';
+                    
+                    alert('已完成:\n- 删除 ' + cacheCount + ' 个缓存\n- 注销 ' + swCount + ' 个 Service Worker');
                 } catch(e) {
-                    alert('注销失败: ' + e.message);
-                }
-            };
-
-            // 注销并重载
-            unregisterReload.onclick = async function() {
-                if (!navigator.serviceWorker) {
-                    location.reload();
-                    return;
-                }
-                try {
-                    var regs = await navigator.serviceWorker.getRegistrations();
-                    for (var r of regs) {
-                        await r.unregister();
-                    }
-                    alert('已注销, 即将重载');
-                    location.reload();
-                } catch(e) {
-                    alert('注销失败: ' + e.message);
+                    alert('操作失败: ' + e.message);
                 }
             };
 
@@ -222,23 +243,8 @@
                 launchGame('tyf');
             };
 
-            // 默认数据
-            var defaultData = {
-                "createType": "2",
-                "mapID": "20011",
-                "mapType": "1",
-                "teamerNum": "10",
-                "ullRoomid": "748475839401491449",
-                "ullExternUid": "748475839401491449",
-                "roomName": "1",
-                "platType": "2",
-                "campid": "1",
-                "AddPos": "0",
-                "AddType": "2",
-                "banHerosCamp1": [],
-                "banHerosCamp2": [],
-                "customDefineItems": ["0:6", "28:6"]
-            };
+            // 初始化：显示随机房间号的默认数据
+            var defaultData = getDefaultData();
             gameJson.value = JSON.stringify(defaultData, null, 2);
         })();
     </script>
