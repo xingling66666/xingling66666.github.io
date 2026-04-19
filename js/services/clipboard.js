@@ -60,7 +60,7 @@ function fallbackCopy(text, showTip) {
  * 显示提示信息
  */
 function showMessage(message, type = 'info') {
-    if (typeof mdui?.snackbar === 'function') {
+    if (typeof mdui !== 'undefined') {
         mdui.snackbar({ message });
     } else {
         console.log(`[${type}]`, message);
