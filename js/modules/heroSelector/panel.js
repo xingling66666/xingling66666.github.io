@@ -38,6 +38,7 @@ import {
     renderTypeFilter,
     createRandomBanDialogContent
 } from './renderer.js';
+import { getDialogBody } from '../../ui/components/dialog/index.js';
 
 /**
  * 创建英雄选择器面板
@@ -88,6 +89,7 @@ export const createHeroSelectorPanel = () => {
 
         bindActionButtons();
         bindSchemeMenuEvents();
+        bindDialogClose();
     };
 
     const bindActionButtons = () => {
@@ -204,6 +206,14 @@ export const createHeroSelectorPanel = () => {
         if (schemeTrigger) {
             schemeTrigger.addEventListener('click', () => renderConfigMenuItems(true));
         }
+    };
+
+    const bindDialogClose = () => {
+        state.dialog.addEventListener('close', (e) => {
+            if (e.target === state.dialog) {
+                getDialogBody(state.dialog)?.scrollTo(0, 0);
+            }
+        });
     };
 
     // ============ 面板控制 ============
