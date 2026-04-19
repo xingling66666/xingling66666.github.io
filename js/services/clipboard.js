@@ -8,9 +8,11 @@ export async function copyText(text, showTip = true) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
             await navigator.clipboard.writeText(text);
-            if (showTip) showSuccessTip();
+            if (showTip) showMessage('复制成功', 'success');
             return true;
         } catch (err) {
+            // 通常清空下的失败原因：页面无焦点元素，且用户未授权读取权限
+            // 降级到 execCommand（同样需要焦点，大概率也会失败）
             console.warn('Clipboard API 失败，尝试 fallback:', err);
             // 降级到 execCommand
             return fallbackCopy(text, showTip);
@@ -40,40 +42,27 @@ function fallbackCopy(text, showTip) {
     try {
         const success = document.execCommand('copy');
         if (success) {
-            if (showTip) showSuccessTip();
+            if (showTip) showMessage('复制成功', 'success');
             return true;
         } else {
             throw new Error('execCommand 返回 false');
         }
     } catch (err) {
-        console.error('复制失败:', err);
-        if (showTip) showErrorTip();
+        console.error('降级复制失败:', err);
+        if (showTip) showMessage('复制失败', 'error')
+        alert('复制失败，请手动复制以下内容：\n\n' + text);
         return false;
     } finally {
         document.body.removeChild(textarea);
     }
 }
-
 /**
- * 显示成功提示
+ * 显示提示信息
  */
-function showSuccessTip() {
-    const message = "复制成功";
-    if (typeof mdui !== 'undefined') {
+function showMessage(message, type = 'info') {
+    if (typeof mdui?.snackbar === 'function') {
         mdui.snackbar({ message });
     } else {
-        alert(message);
-    }
-}
-
-/**
- * 显示失败提示
- */
-function showErrorTip() {
-    const message = "复制失败";
-    if (typeof mdui !== 'undefined') {
-        mdui.snackbar({ message });
-    } else {
-        alert(message);
+        console.log(`[${type}]`, message);
     }
 }

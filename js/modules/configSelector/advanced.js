@@ -11,6 +11,7 @@ import {
     getTabState
 } from './state.js';
 import { VICTORY_SELECT_ID } from './constants.js';
+import { getDialogBody } from '../../ui/components/dialog/index.js';
 
 // ============ 高级设置对话框 ============
 
@@ -124,7 +125,7 @@ const loadAdvancedEditData = () => {
 
     const firstTab = state.advancedEditDialog.querySelector('mdui-tab');
     if (firstTab) firstTab.click();
-    state.advancedEditDialog.bodyRef.value.scrollTop = 0;
+    getDialogBody(state.advancedEditDialog)?.scrollTo(0, 0);
 };
 
 /**

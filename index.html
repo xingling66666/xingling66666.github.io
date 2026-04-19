@@ -59,9 +59,9 @@
     <title>王者自定义房间</title>
 </head>
 
-<body style="display: none;">
+<body>
     <!-- 主布局容器 -->
-    <mdui-layout class="app-layout">
+    <mdui-layout class="app-layout" style="display: none;">
 
         <!-- 顶部导航栏 -->
         <mdui-top-app-bar class="app-header" variant="small">
@@ -136,7 +136,7 @@
 
                 <!-- 禁用英雄选择 -->
                 <mdui-dropdown trigger="click" placement="auto">
-                    <mdui-text-field slot="trigger" label="禁用英雄列表" readonly variant="outlined"
+                    <mdui-text-field slot="trigger" label="自定义禁用英雄配置" readonly variant="outlined"
                         class="form-input hero-ban-input"></mdui-text-field>
                     <mdui-menu class="form-menu hero-menu" submenu-trigger="click hover"></mdui-menu>
                 </mdui-dropdown>
@@ -196,7 +196,7 @@
     <!-- ============ 英雄选择器弹窗 ============ -->
     <mdui-dialog class="hero-selector-dialog" close-on-overlay-click fullscreen>
         <mdui-top-app-bar slot="header" variant="small">
-            <mdui-top-app-bar-title>禁用英雄</mdui-top-app-bar-title>
+            <mdui-top-app-bar-title>禁用英雄配置</mdui-top-app-bar-title>
             <mdui-button variant="text" class="dialog-close-btn">关闭</mdui-button>
         </mdui-top-app-bar>
 

@@ -60,18 +60,22 @@ export async function handleLinkAction(action) {
     const isRoomOnly = checkRoomOnly(mapName);
 
     // 统一的确认检查
-    const tipText = isRoomOnly
-        ? '此地图仅提供开房间，不可无CD哦，确认继续？'
-        : (checkHasCustomConfig(config) ? '确认继续？' : '检测到自定义配置为空，是否继续？');
+    const needConfirm = isRoomOnly || !checkHasCustomConfig(config);
 
-    const confirmed = await showConfirm({
-        headline: '提示',
-        description: tipText,
-        confirmText: '继续',
-        cancelText: '取消'
-    });
+    if (needConfirm) {
+        const tipText = isRoomOnly
+            ? '此地图仅提供开房间，不可无CD哦，确认继续？'
+            : '检测到自定义配置为空，是否继续？';
 
-    if (!confirmed) return;
+        const confirmed = await showConfirm({
+            headline: '提示',
+            description: tipText,
+            confirmText: '继续',
+            cancelText: '取消'
+        });
+
+        if (!confirmed) return;
+    }
 
     if (action === COPY) {
         setWorkMessage('正在生成链接...');
@@ -127,7 +131,7 @@ async function handleCopyAction(scheme, config, gameServer, mapName, banHeroData
         });
 
         if (!useShort) {
-            handleCopyResult(data, url);
+            handleCopyResult(scheme, data, url);
             return;
         }
     }
@@ -139,13 +143,12 @@ async function handleCopyAction(scheme, config, gameServer, mapName, banHeroData
         // 短链接失败，继续使用原链接
     }
 
-    handleCopyResult(data, url);
+    handleCopyResult(scheme, data, url);
 }
 
-function handleCopyResult(data, originalUrl) {
+function handleCopyResult(scheme, data, originalUrl) {
     const copyResult = applyCopyRule(data);
-    copyText(copyResult);
-    
+
     if (originalUrl.length >= MAX_QR_LENGTH) {
         showDialog({
             headline: '提示',
@@ -154,7 +157,7 @@ function handleCopyResult(data, originalUrl) {
             actions: [{ text: '知道了' }]
         });
     } else {
-        showQRCodeDialog(data.url, originalUrl, copyResult);
+        showQRCodeDialog(scheme, data.url, copyResult);
     }
 }
 
@@ -169,7 +172,7 @@ export const handleCopyLink = () => handleLinkAction(COPY);
 export function handleTutorial() {
     showAlert({
         headline: '使用教程',
-        description: '1. 打开游戏训练营\n2. 选择英雄后进入加载页\n3. 点击「启动」即可解除限制\n4. 可通过「复制链接」分享给他人进入房间\n\n💡 提示：长按「复制链接」按钮可设置复制规则'
+        description: '1. 打开游戏训练营\n2. 选择英雄后进入加载页\n3. 点击「启动」即可解除限制\n4. 可通过「复制链接」分享给他人进入房间'
     });
 }
 

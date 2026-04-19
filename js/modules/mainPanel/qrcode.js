@@ -27,9 +27,15 @@ export function showQRCodeDialog(scheme, url, content) {
         actions: [
             {
                 text: '打开游戏并复制',
-                onClick: () => {
+                onClick: async () => {
+                    // 关键：必须先完成复制，再执行跳转
+                    // 因为 openGameLink 会导致页面失焦或跳转，打断 Clipboard API 所需的用户交互上下文
+                    // 若顺序颠倒，复制操作会因丢失焦点而触发权限验证
+                    // - 未授权时：抛出 NotAllowedError
+                    // - 已授权时：可以正常复制
+                    // 为避免不确定性，始终先复制再跳转
+                    await copyText(content);
                     openGameLink(scheme);
-                    copyText(content);
                 }
             },
             { text: '关闭' }

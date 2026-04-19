@@ -37,7 +37,7 @@ async function initApp() {
         bindWindowEvents();
 
         // 2. 显示欢迎提示
-        await showWelcomeTips();
+        showWelcomeTips();
 
         // 3. 初始化数据
         await initData();
@@ -47,10 +47,10 @@ async function initApp() {
         // 该函数负责恢复用户上次选择的主题或应用默认主题，确保主题样式完全加载
         await uiManager.init();
 
-        // 5. 主题和 UI 加载完成后显示 body
-        // 说明：为防止主题切换时的样式闪烁问题，HTML 中 body 标签设置了内联样式 style="display: none;"
-        // 此时所有主题样式、UI 组件均已加载完成，将 body 设为可见，确保用户看到的是完整的、已应用主题的界面
-        showBody();
+        // 5. 主题和 UI 加载完成后显示 layout
+        // 说明：为防止主题切换时的样式闪烁，HTML 中的 mdui-layout 标签预设了内联样式 display: none
+        // 此时所有主题样式和 UI 组件均已加载完成，恢复 layout 显示，确保用户看到的是已应用主题的完整界面
+        showLayout();
 
         appState.initialized = true;
         console.log('✓ 应用初始化完成');
@@ -67,15 +67,15 @@ async function initApp() {
 }
 
 /**
- * 显示 body 内容（在主题和 UI 加载完成后调用）
- * 当主题和 UI 完全加载后，将 display 设为 unset，恢复 body 正常显示
+ * 显示 layout 内容（在主题和 UI 加载完成后调用）
+ * 移除内联 display: none 样式，让 layout 按 CSS 样式表定义的规则正常显示
  */
-function showBody() {
-    const body = document.body;
-    if (body) {
-        // 将 display 从 hidden 恢复为 unset（即浏览器默认值）
-        body.style.display = 'unset';
-        console.log('✓ body 已显示（主题和 UI 加载完成）');
+function showLayout() {
+    const layout = document.querySelector(".app-layout");
+    if (layout) {
+        // 清除内联 display: none，让元素按 CSS 规则正常显示
+        layout.style.display = '';
+        console.log('✓ layout 已显示（主题和 UI 加载完成）');
     }
 }
 
@@ -102,10 +102,10 @@ async function onWindowLoad() {
 /**
  * 显示欢迎提示
  */
-async function showWelcomeTips() {
+function showWelcomeTips() {
     // 免费提示（仅首次显示）
     if (storage.getFreeTip() !== '0.1') {
-        await showDialog({
+        showDialog({
             headline: '提示',
             description: TIPS.FREE_TIP,
             actions: [
@@ -124,7 +124,7 @@ async function showWelcomeTips() {
 
     // 创建提示（仅首次显示）
     if (storage.getCreateTip() !== '0.1') {
-        await showAlert({
+        showAlert({
             headline: '提示',
             description: TIPS.CREATE_TIP,
             confirmText: '我知道了',

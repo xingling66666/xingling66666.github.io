@@ -3,7 +3,7 @@
 import { createElement } from '../../utils/dom.js';
 import * as storage from '../../services/storage.js';
 import { copyText } from '../../services/clipboard.js';
-import { showSnackbar, showConfirm, showPrompt, showAlert } from '../../ui/components/dialog/index.js';
+import { showSnackbar, showConfirm, showPrompt, showAlert, getDialogBody } from '../../ui/components/dialog/index.js';
 import { TIPS, lastCustomVersion } from '../../config/constants.js';
 import { compressConfig, decompressConfig, isWebCreateableMapById, isRoomOnlyMapById } from '../../utils/config/index.js';
 
@@ -378,7 +378,7 @@ export const createConfigSelectorPanel = () => {
 
     // ============ 配置操作 ============
 
-    const getFullConfig = () => {
+    const getFullConfig = (configName) => {
         saveAllCurrentData((tabKey) => collectUIData(getPanelByTabKey(state.dialog, tabKey)));
 
         // 收集配置
@@ -387,7 +387,7 @@ export const createConfigSelectorPanel = () => {
 
         // 构建完整配置
         return buildFullConfig(uiConfig, advancedSettings, {
-            name: document.querySelector('.custom-input')?.value || generateConfigName(),
+            name: configName || document.querySelector('.custom-input')?.value || generateConfigName(),
             createdAt: state.currentConfig?.createdAt || new Date().toISOString()
         });
     };
@@ -412,7 +412,7 @@ export const createConfigSelectorPanel = () => {
             });
             if (!confirmed) return;
         }
-        const fullConfig = getFullConfig();
+        const fullConfig = getFullConfig(configName);
 
         configs[configName] = fullConfig;
         storage.setCustomConfigs(configs);
@@ -653,7 +653,7 @@ export const createConfigSelectorPanel = () => {
         const tab = state.dialog.querySelector('mdui-tab');
         if (tab) tab.click();
 
-        state.dialog.bodyRef.value.scrollTop = 0;
+        getDialogBody(state.dialog)?.scrollTo(0, 0);
 
         resetAllState();
     };

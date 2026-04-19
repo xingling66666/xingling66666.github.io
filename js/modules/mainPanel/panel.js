@@ -5,6 +5,7 @@ import * as storage from '../../services/storage.js';
 import { setInitialized, isInitialized } from './state.js';
 import { bindButtonEvents, bindInputEvents, bindLongPressEvents, bindGameServerEvents, loadDataFromStorage } from './events.js';
 import { getMapNameById } from '../../data/mapData.js';
+import { showSnackbar } from '../../ui/components/dialog/index.js';
 
 // ============ 配置获取 ============
 
@@ -28,7 +29,7 @@ export function getMapName() {
         const mapId = config.advanced.mapID;
         const mapName = getMapNameById(mapId);
         if (!mapName) {
-            alert(`地图ID "${mapId}" 不存在`);
+            showSnackbar(`地图ID "${mapId}" 不存在`);
             throw new Error(`地图ID "${mapId}" 不存在`);
         }
         return mapName;
@@ -36,7 +37,7 @@ export function getMapName() {
 
     const mapName = document.querySelector('.map-input')?.value;
     if (!mapName) {
-        alert('请先选择或输入地图');
+        showSnackbar('请先选择或输入地图');
         throw new Error('地图输入为空');
     }
 
