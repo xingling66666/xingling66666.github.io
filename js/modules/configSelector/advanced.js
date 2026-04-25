@@ -43,20 +43,19 @@ const buildAdvancedEditDialog = () => {
     clonedTabs.querySelector(`#${VICTORY_SELECT_ID}`)?.remove();
 
     const clonedPanels = clonedTabs.querySelectorAll('mdui-tab-panel');
+    // 默认选中第一个
+    clonedTabs.value = clonedPanels[0].value;
 
     clonedPanels.forEach(clonedPanel => {
         const selects = clonedPanel.querySelectorAll('mdui-select');
 
         selects.forEach(select => {
-            const attrKey = select.dataset.attrKey;
-            if (!attrKey) return;
-
-            const tabKey = clonedPanel.dataset.tabKey;
-            const id = `${tabKey}.${attrKey}`;
+            const id = select.dataset.configKey;
+            if (!id) return;
             const flatMeta = FLAT_CONFIG[id];
 
             const textField = createTextField(select.label, 0);
-            textField.dataset.configId = id;
+            textField.dataset.configKey = id;
             textField._data = [];
             textField.availablePositions = flatMeta?.totalCount === 10
                 ? Array.from({ length: 10 }, (_, i) => `选手${i + 1}`)
@@ -103,7 +102,7 @@ const loadAdvancedEditData = () => {
     const textFields = state.advancedEditDialog.querySelectorAll('mdui-text-field');
 
     textFields.forEach(textField => {
-        const id = textField.dataset.configId;
+        const id = textField.dataset.configKey;
         const fieldData = savedData[id];
 
         if (fieldData && fieldData.length > 0) {
@@ -141,7 +140,7 @@ export const saveAdvancedEditData = (textField, data) => {
 
     const configs = storage.getCustomConfigs();
     const dataKey = state.currentMode === 'randomGen' ? 'randomGen' : 'randomShuffle';
-    const id = textField.dataset.configId;
+    const id = textField.dataset.configKey;
 
     if (!configs[name].advanced) {
         configs[name].advanced = { mapID: '', heroBans: '', randomGen: {}, randomShuffle: {} };
@@ -179,7 +178,7 @@ export const saveAdvancedEditData = (textField, data) => {
  */
 const showEditDialogForField = (textField) => {
     const state = getState();
-    const id = textField.dataset.configId;
+    const id = textField.dataset.configKey;
     const flatMeta = FLAT_CONFIG[id];
     const options = flatMeta.options;
 
@@ -315,7 +314,7 @@ const showEditRuleDialog = (textField, chip, options, onSave, onDelete) => {
             if (isRandomGen) {
                 items = options;
             } else {
-                const id = textField.dataset.configId;
+                const id = textField.dataset.configKey;
                 const [category, attrKey] = id.split('.');
                 const tabState = getTabState(category);
 

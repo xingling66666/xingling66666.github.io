@@ -1,17 +1,14 @@
 // utils/config/converter.js
 
 import {
-    HERO_ATTRIBUTES,
-    MINION_ATTRIBUTES,
-    MONSTER_ATTRIBUTES,
-    TOWER_ATTRIBUTES,
-    CRYSTAL_ATTRIBUTES,
+    DEFAULT_VALUE,
     VICTORY_CONDITIONS,
     isEffectiveValueByKey,
     isEffectiveValueById,
     getGameIds,
     getAttribute,
-    FLAT_CONFIG
+    UI_SECTIONS,
+    parseFlatKey
 } from './constants.js';
 import { shufflePositions } from '../random.js';
 
@@ -20,19 +17,27 @@ import { shufflePositions } from '../random.js';
 export function configToCustomItems(config, playerCount) {
     let items = [];
 
-    if (config.hero?.data) {
-        processHeroData(items, config.hero, playerCount);
-    }
+    // 遍历所有 UI 分组
+    UI_SECTIONS.forEach(section => {
+        const sectionConfig = config[section.tabKey];
+        if (!sectionConfig?.data) return;
 
-    if (config.minion?.data) {
-        processMinionData(items, config.minion);
-    }
+        const { mode, data } = sectionConfig;
 
-    if (config.tower?.data) {
-        processTowerData(items, config.tower);
-    }
+        // 处理有 groups 的 section（兵线与野怪、防御塔与水晶）
+        if (section.groups) {
+            section.groups.forEach(group => {
+                processGroup(items, group, mode, data, playerCount);
+            });
+        }
+        // 处理直接有 attributes 的 section（英雄属性）
+        else if (section.attributes) {
+            processSection(items, section, mode, data, playerCount);
+        }
+    });
 
-    if (config.victory && config.victory !== String(0)) {
+    // 处理胜利条件
+    if (config.victory != null && Number(config.victory) !== DEFAULT_VALUE) {
         const victoryCondition = VICTORY_CONDITIONS.find(c => c.value === parseInt(config.victory));
         if (victoryCondition?.config) {
             Object.entries(victoryCondition.config).forEach(([id, value]) => {
@@ -41,6 +46,7 @@ export function configToCustomItems(config, playerCount) {
         }
     }
 
+    // 应用随机规则
     if (config.advanced?.randomGen) {
         items = applyRandomGenToItems(items, config.advanced.randomGen, playerCount);
     }
@@ -49,22 +55,143 @@ export function configToCustomItems(config, playerCount) {
         items = applyRandomShuffleToItems(items, config.advanced.randomShuffle, playerCount);
     }
 
+    // 过滤默认值
     return items.filter(item => {
         const [id, value] = item.split(':');
         return isEffectiveValueById(parseInt(id), parseInt(value));
     });
 }
 
+/**
+ * 处理 Section（英雄属性）
+ */
+function processSection(items, section, mode, data, playerCount) {
+    const { category, order } = section;
+    const prefix = `${category}.`;
+
+    if (mode === 'all') {
+        // 全局模式：所有玩家使用相同值
+        ['blue', 'red'].forEach(side => {
+            order.forEach(attrKey => {
+                const flatKey = `${prefix}${attrKey}`;
+                const value = data[flatKey];
+                if (isEffectiveValueByKey(attrKey, value)) {
+                    addAttributeValues(items, category, attrKey, side, value, playerCount);
+                }
+            });
+        });
+    }
+    else if (mode === 'team') {
+        // 队伍模式：蓝红方可能不同
+        if (data.blue) {
+            order.forEach(attrKey => {
+                const flatKey = `${prefix}${attrKey}`;
+                const value = data.blue[flatKey];
+                if (isEffectiveValueByKey(attrKey, value)) {
+                    addAttributeValues(items, category, attrKey, 'blue', value, playerCount);
+                }
+            });
+        }
+        if (data.red) {
+            order.forEach(attrKey => {
+                const flatKey = `${prefix}${attrKey}`;
+                const value = data.red[flatKey];
+                if (isEffectiveValueByKey(attrKey, value)) {
+                    addAttributeValues(items, category, attrKey, 'red', value, playerCount);
+                }
+            });
+        }
+    }
+    else if (mode === 'player') {
+        // 玩家模式：每个位置单独配置
+        ['blue', 'red'].forEach(side => {
+            const players = data[side];
+            if (Array.isArray(players)) {
+                players.forEach((playerData, pos) => {
+                    if (pos >= playerCount) return;
+                    order.forEach(attrKey => {
+                        const flatKey = `${prefix}${attrKey}`;
+                        const value = playerData?.[flatKey];
+                        if (isEffectiveValueByKey(attrKey, value)) {
+                            addAttributeValuesAtPosition(items, category, attrKey, side, value, pos);
+                        }
+                    });
+                });
+            }
+        });
+    }
+}
+
+/**
+ * 处理 Group（兵线/野怪 或 防御塔/水晶）
+ */
+function processGroup(items, group, mode, data, playerCount) {
+    const { category, order } = group;
+    const prefix = `${category}.`;
+
+    if (mode === 'all') {
+        ['blue', 'red'].forEach(side => {
+            order.forEach(attrKey => {
+                const flatKey = `${prefix}${attrKey}`;
+                const value = data[flatKey];
+                if (isEffectiveValueByKey(attrKey, value)) {
+                    addAttributeValues(items, category, attrKey, side, value, playerCount);
+                }
+            });
+        });
+    }
+    else if (mode === 'team') {
+        if (data.blue) {
+            order.forEach(attrKey => {
+                const flatKey = `${prefix}${attrKey}`;
+                const value = data.blue[flatKey];
+                if (isEffectiveValueByKey(attrKey, value)) {
+                    addAttributeValues(items, category, attrKey, 'blue', value, playerCount);
+                }
+            });
+        }
+        if (data.red) {
+            order.forEach(attrKey => {
+                const flatKey = `${prefix}${attrKey}`;
+                const value = data.red[flatKey];
+                if (isEffectiveValueByKey(attrKey, value)) {
+                    addAttributeValues(items, category, attrKey, 'red', value, playerCount);
+                }
+            });
+        }
+    }
+}
+
+/**
+ * 添加属性值到 items（应用到所有位置）
+ */
+function addAttributeValues(items, category, attrKey, side, value, playerCount) {
+    const attr = getAttribute(category, attrKey);
+    if (!attr) return;
+
+    const positionCount = attr.totalCount === 10 ? playerCount : 1;
+
+    for (let pos = 0; pos < positionCount; pos++) {
+        const gameIds = getGameIds(attr, side, pos);
+        gameIds.forEach(id => items.push(`${id}:${value}`));
+    }
+}
+
+/**
+ * 添加属性值到 items（应用到指定位置）
+ */
+function addAttributeValuesAtPosition(items, category, attrKey, side, value, position) {
+    const attr = getAttribute(category, attrKey);
+    if (!attr) return;
+
+    const gameIds = getGameIds(attr, side, position);
+    gameIds.forEach(id => items.push(`${id}:${value}`));
+}
+
 // ============ 随机规则处理 ============
 
 /**
  * 获取指定字段的标识符列表
- * 普通属性返回 [[id1], [id2], ...]，CD 属性返回 [[id1,id2], [id3,id4], ...]
- * 统一抽象后，取值取每组第一个，设值遍历整组
- * @param {string} category - 分类: 'hero' | 'minion' | 'monster' | 'tower' | 'crystal'
- * @param {string} attrKey - 属性key
- * @param {number} playerCount - 每队玩家数量
- * @returns {Array<Array<string>>} 标识符分组数组
  */
 function getFieldIdentifiers(category, attrKey, playerCount) {
     const attr = getAttribute(category, attrKey);
@@ -74,11 +201,8 @@ function getFieldIdentifiers(category, attrKey, playerCount) {
     const positionCount = attr.totalCount === 10 ? playerCount : 1;
 
     for (let pos = 0; pos < positionCount; pos++) {
-        // 蓝方
         const blueIds = getGameIds(attr, 'blue', pos);
         identifiers.push(blueIds.map(String));
-
-        // 红方
         const redIds = getGameIds(attr, 'red', pos);
         identifiers.push(redIds.map(String));
     }
@@ -88,10 +212,6 @@ function getFieldIdentifiers(category, attrKey, playerCount) {
 
 /**
  * 从 itemMap 中获取指定位置的值
- * @param {Map<string, string>} itemMap - ID 到值的映射
- * @param {Array<Array<string>>} identifiers - 标识符分组数组
- * @param {Array<number>} positions - 要获取的位置索引
- * @returns {Array<string>} 对应位置的值（过滤掉不存在的）
  */
 function getValuesFromIdentifiers(itemMap, identifiers, positions) {
     return positions
@@ -101,10 +221,6 @@ function getValuesFromIdentifiers(itemMap, identifiers, positions) {
 
 /**
  * 设置值到 itemMap 的指定位置
- * @param {Map<string, string>} itemMap - ID 到值的映射
- * @param {Array<Array<string>>} identifiers - 标识符分组数组
- * @param {Array<number>} positions - 要设置的位置索引
- * @param {Array<string>} values - 要设置的值
  */
 function setValuesToIdentifiers(itemMap, identifiers, positions, values) {
     positions.forEach((pos, i) => {
@@ -118,7 +234,6 @@ function setValuesToIdentifiers(itemMap, identifiers, positions, values) {
 
 /**
  * 应用随机生成规则到 items
- * 根据规则中的 range 为指定位置随机生成值
  */
 function applyRandomGenToItems(items, randomGen, playerCount) {
     const itemMap = new Map();
@@ -127,14 +242,13 @@ function applyRandomGenToItems(items, randomGen, playerCount) {
         itemMap.set(id, value);
     });
 
-    for (const [id, rules] of Object.entries(randomGen)) {
+    for (const [flatId, rules] of Object.entries(randomGen)) {
         if (!Array.isArray(rules)) continue;
 
-        // 从 FLAT_CONFIG 获取元数据
-        const flatMeta = FLAT_CONFIG[id];
-        if (!flatMeta) continue;
+        const parsed = parseFlatKey(flatId);
+        if (!parsed) continue;
 
-        const { category, attrKey } = flatMeta;
+        const { category, attrKey } = parsed;
         const identifiers = getFieldIdentifiers(category, attrKey, playerCount);
 
         rules.forEach(({ range, positions }) => {
@@ -156,7 +270,6 @@ function applyRandomGenToItems(items, randomGen, playerCount) {
 
 /**
  * 应用随机打乱规则到 items
- * 根据规则中的 positions 将指定位置的值随机打乱
  */
 function applyRandomShuffleToItems(items, randomShuffle, playerCount) {
     const itemMap = new Map();
@@ -165,14 +278,13 @@ function applyRandomShuffleToItems(items, randomShuffle, playerCount) {
         itemMap.set(id, value);
     });
 
-    for (const [id, rules] of Object.entries(randomShuffle)) {
+    for (const [flatId, rules] of Object.entries(randomShuffle)) {
         if (!Array.isArray(rules)) continue;
 
-        // 从 FLAT_CONFIG 获取元数据
-        const flatMeta = FLAT_CONFIG[id];
-        if (!flatMeta) continue;
+        const parsed = parseFlatKey(flatId);
+        if (!parsed) continue;
 
-        const { category, attrKey } = flatMeta;
+        const { category, attrKey } = parsed;
         const identifiers = getFieldIdentifiers(category, attrKey, playerCount);
 
         rules.forEach(positions => {
@@ -186,124 +298,4 @@ function applyRandomShuffleToItems(items, randomShuffle, playerCount) {
     }
 
     return Array.from(itemMap, ([id, value]) => `${id}:${value}`);
-}
-
-// ============ 英雄属性处理 ============
-
-function processHeroData(items, heroConfig, playerCount) {
-    const { mode, data } = heroConfig;
-
-    const processValue = (side, attrKey, value, pos) => {
-        if (isEffectiveValueByKey(attrKey, value)) {
-            addHeroValueToSide(items, side, attrKey, value, pos);
-        }
-    };
-
-    if (mode === 'all') {
-        Object.entries(data).forEach(([attrKey, value]) => {
-            for (let pos = 0; pos < playerCount; pos++) {
-                processValue('blue', attrKey, value, pos);
-                processValue('red', attrKey, value, pos);
-            }
-        });
-    } else if (mode === 'team') {
-        ['blue', 'red'].forEach(side => {
-            const sideData = data[side];
-            if (sideData) {
-                Object.entries(sideData).forEach(([attrKey, value]) => {
-                    for (let pos = 0; pos < playerCount; pos++) {
-                        processValue(side, attrKey, value, pos);
-                    }
-                });
-            }
-        });
-    } else if (mode === 'player') {
-        ['blue', 'red'].forEach(side => {
-            const players = data[side];
-            if (players) {
-                players.forEach((playerAttrs, pos) => {
-                    if (pos >= playerCount) return;
-                    Object.entries(playerAttrs).forEach(([attrKey, value]) => {
-                        processValue(side, attrKey, value, pos);
-                    });
-                });
-            }
-        });
-    }
-}
-
-function addHeroValueToSide(items, side, attrKey, value, position) {
-    const attr = HERO_ATTRIBUTES[attrKey];
-    if (!attr) return;
-
-    const gameIds = getGameIds(attr, side, position);
-    gameIds.forEach(id => items.push(`${id}:${value}`));
-}
-
-// ============ 兵线属性处理 ============
-
-function processMinionData(items, minionConfig) {
-    const { mode, data } = minionConfig;
-
-    if (mode === 'all') {
-        processMinionSide(items, 'blue', data);
-        processMinionSide(items, 'red', data);
-    } else if (mode === 'team') {
-        if (data.blue) processMinionSide(items, 'blue', data.blue);
-        if (data.red) processMinionSide(items, 'red', data.red);
-    }
-}
-
-function processMinionSide(items, side, sideData) {
-    // 处理兵线属性
-    Object.entries(MINION_ATTRIBUTES).forEach(([attrKey, attr]) => {
-        const value = sideData[attrKey];
-        if (isEffectiveValueByKey(attrKey, value)) {
-            const gameIds = getGameIds(attr, side);
-            gameIds.forEach(id => items.push(`${id}:${value}`));
-        }
-    });
-    
-    // 处理野怪属性
-    Object.entries(MONSTER_ATTRIBUTES).forEach(([attrKey, attr]) => {
-        const value = sideData[attrKey];
-        if (isEffectiveValueByKey(attrKey, value)) {
-            const gameIds = getGameIds(attr, side);
-            gameIds.forEach(id => items.push(`${id}:${value}`));
-        }
-    });
-}
-
-// ============ 防御塔属性处理 ============
-
-function processTowerData(items, towerConfig) {
-    const { mode, data } = towerConfig;
-
-    if (mode === 'all') {
-        processTowerSide(items, 'blue', data);
-        processTowerSide(items, 'red', data);
-    } else if (mode === 'team') {
-        if (data.blue) processTowerSide(items, 'blue', data.blue);
-        if (data.red) processTowerSide(items, 'red', data.red);
-    }
-}
-
-function processTowerSide(items, side, sideData) {
-    // 处理防御塔属性
-    Object.entries(TOWER_ATTRIBUTES).forEach(([attrKey, attr]) => {
-        const value = sideData[attrKey];
-        if (isEffectiveValueByKey(attrKey, value)) {
-            const gameIds = getGameIds(attr, side);
-            gameIds.forEach(id => items.push(`${id}:${value}`));
-        }
-    });
-    
-    // 处理水晶属性
-    Object.entries(CRYSTAL_ATTRIBUTES).forEach(([attrKey, attr]) => {
-        const value = sideData[attrKey];
-        if (isEffectiveValueByKey(attrKey, value)) {
-            const gameIds = getGameIds(attr, side);
-            gameIds.forEach(id => items.push(`${id}:${value}`));
-        }
-    });
 }

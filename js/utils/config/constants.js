@@ -405,15 +405,70 @@ export const getVictoryLabel = (value) => {
     return condition?.label || VICTORY_CONDITIONS[0].label;
 };
 
+// 根据分类获取属性集合
+export const getAttributesByCategory = (category) => {
+    return ALL_ATTRIBUTES[category] || null;
+};
+
 // 获取属性（通过 category 和 attrKey）
 export const getAttribute = (category, attrKey) => {
-    return ALL_ATTRIBUTES[category]?.[attrKey];
+    return getAttributesByCategory(category)?.[attrKey];
 };
 
 // 通过 ID 获取属性
 export const getAttributeById = (id) => {
     const [category, attrKey] = id.split('.');
     return getAttribute(category, attrKey);
+};
+
+// 根据属性集合反向获取分类名
+export const getCategoryByAttributes = (attributes) => {
+    for (const [category, attrs] of Object.entries(ALL_ATTRIBUTES)) {
+        if (attrs === attributes) {
+            return category;
+        }
+    }
+    return null;
+};
+
+// ============ 扁平化 Key 辅助函数 ============
+
+// 解析扁平化 key
+export const parseFlatKey = (flatKey) => {
+    const parts = flatKey.split('.');
+    if (parts.length === 2) {
+        return { category: parts[0], attrKey: parts[1] };
+    }
+    return null;
+};
+
+// 构建扁平化 key
+export const buildFlatKey = (category, attrKey) => {
+    return `${category}.${attrKey}`;
+};
+
+// 从扁平化 key 中提取属性 key
+export const extractAttrKey = (flatKey) => {
+    const parts = flatKey.split('.');
+    return parts.length === 2 ? parts[1] : flatKey;
+};
+
+// 从扁平化 key 中提取分类
+export const extractCategory = (flatKey) => {
+    const parts = flatKey.split('.');
+    return parts.length === 2 ? parts[0] : null;
+};
+
+// 判断值是否为默认值（使用扁平化 key）
+export const isDefaultValueByFlatKey = (flatKey, value) => {
+    const parsed = parseFlatKey(flatKey);
+    if (!parsed) return true;
+    return isDefaultValueByKey(parsed.attrKey, value);
+};
+
+// 判断值是否为有效值（非默认值，使用扁平化 key）
+export const isEffectiveValueByFlatKey = (flatKey, value) => {
+    return !isDefaultValueByFlatKey(flatKey, value);
 };
 
 // ============ 配置构建 ============

@@ -1,10 +1,11 @@
 // modules/configSelector/renderer.js
 
 import { createElement } from '../../utils/dom.js';
-import { 
+import {
     UI_SECTIONS,
     VICTORY_CONDITIONS,
     DEFAULT_VICTORY,
+    compressConfig,
 } from '../../utils/config/index.js';
 import { applyVictoryToDOM } from './core.js';
 
@@ -16,17 +17,19 @@ import { applyVictoryToDOM } from './core.js';
 export const buildAllConfigPanels = async (dialog) => {
     const panels = dialog.querySelectorAll('.config-panel');
     const sections = UI_SECTIONS;
-    
+
     for (let i = 0; i < sections.length; i++) {
         await new Promise(resolve => {
             requestAnimationFrame(() => {
-                const container = panels[i].querySelector('.config-container');
+                const panel = panels[i];
+                panel.dataset.tabKey = sections[i].tabKey;
+                const container = panel.querySelector('.config-container');
                 buildSection(container, sections[i]);
                 resolve();
             });
         });
     }
-    
+
     // 最后一个面板添加胜利条件
     const lastPanel = panels[panels.length - 1];
     const lastContainer = lastPanel.querySelector('.config-container');
@@ -38,27 +41,31 @@ export const buildAllConfigPanels = async (dialog) => {
  */
 const buildSection = (container, section) => {
     const list = createElement('mdui-list');
-    
+
     if (section.groups) {
         section.groups.forEach(group => {
+            const categoryKey = group.category;
             list.appendChild(createElement('mdui-list-subheader', { textContent: group.name }));
             group.order.forEach(attrKey => {
                 const attr = group.attributes[attrKey];
                 if (attr) {
-                    list.appendChild(createConfigSelect(attrKey, attr.label, attr.options, attr.defaultValue));
+                    const configKey = `${categoryKey}.${attrKey}`;
+                    list.appendChild(createConfigSelect(configKey, attr.label, attr.options, attr.defaultValue));
                 }
             });
         });
     } else {
+        const categoryKey = section.category;
         list.appendChild(createElement('mdui-list-subheader', { textContent: section.name }));
         section.order.forEach(attrKey => {
             const attr = section.attributes[attrKey];
             if (attr) {
-                list.appendChild(createConfigSelect(attrKey, attr.label, attr.options, attr.defaultValue));
+                const configKey = `${categoryKey}.${attrKey}`;
+                list.appendChild(createConfigSelect(configKey, attr.label, attr.options, attr.defaultValue));
             }
         });
     }
-    
+
     container.appendChild(list);
 };
 
@@ -67,12 +74,12 @@ const buildSection = (container, section) => {
  */
 const addVictorySelect = (container) => {
     const list = container.querySelector('mdui-list') || createElement('mdui-list');
-    
+
     const options = VICTORY_CONDITIONS.map(c => c.label);
     const victorySelect = createConfigSelect('victory', '胜利条件', options, DEFAULT_VICTORY);
     victorySelect.id = 'victory-condition';
     list.appendChild(victorySelect);
-    
+
     if (!container.contains(list)) {
         container.appendChild(list);
     }
@@ -83,28 +90,28 @@ const addVictorySelect = (container) => {
 /**
  * 创建配置选择器
  */
-export const createConfigSelect = (attrKey, label, options, defaultValue = 0) => {
+export const createConfigSelect = (configKey, label, options, defaultValue = 0) => {
     const select = createElement('mdui-select', {
-        attributes: { 
-            label, 
+        attributes: {
+            label,
             variant: 'outlined',
-            'data-attr-key': attrKey
+            'data-config-key': configKey
         },
         style: { padding: '10px' }
     });
-    
+
     options.forEach((option, index) => {
         select.appendChild(createElement('mdui-menu-item', {
             textContent: option,
             attributes: { value: String(index) }
         }));
     });
-    
+
     select.updateComplete.then(() => {
         select.value = String(defaultValue);
         select.defaultValue = String(defaultValue);
     });
-    
+
     return select;
 };
 
@@ -127,13 +134,13 @@ export const createTextField = (label, configCount) => {
 export const updateSelectorsVisibility = (panel, mode) => {
     const teamSelector = panel.querySelector('.team-selector');
     const playerSelector = panel.querySelector('.player-selector');
-    
+
     const visibility = {
         all: { team: false, player: false },
         team: { team: true, player: false },
         player: { team: true, player: true }
     }[mode];
-    
+
     if (teamSelector) teamSelector.style.display = visibility.team ? 'block' : 'none';
     if (playerSelector) playerSelector.style.display = visibility.player ? 'block' : 'none';
 };
@@ -143,16 +150,16 @@ export const updateSelectorsVisibility = (panel, mode) => {
  */
 export const updateUIModeSelectors = (dialog, config) => {
     const panels = dialog.querySelectorAll('.config-panel');
-    
+
     panels.forEach(panel => {
         const tabKey = panel.dataset.tabKey;
         const panelConfig = config[tabKey];
         if (!panelConfig) return;
-        
+
         const modeGroup = panel.querySelector('.config-mode-group');
         if (modeGroup) modeGroup.value = panelConfig.mode || 'all';
     });
-    
+
     if (config.victory) {
         applyVictoryToDOM(config.victory);
     }

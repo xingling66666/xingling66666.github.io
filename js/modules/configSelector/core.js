@@ -16,14 +16,15 @@ export const collectUIData = (panel) => {
     const data = {};
 
     selects.forEach(select => {
-        const attrKey = select.dataset.attrKey;
-        if (!attrKey) return;
+        const key = select.dataset.configKey;
+        if (!key) return;
 
         const value = select.value || select.defaultValue;
+
         if (select.multiple) {
-            data[attrKey] = JSON.stringify(value || []);
+            data[key] = JSON.stringify(value || []);
         } else {
-            data[attrKey] = value || String(0);
+            data[key] = value || String(0);
         }
     });
 
@@ -47,10 +48,9 @@ export const applyDataToUI = (dialog, tabKey, data) => {
     if (!panel) return;
 
     panel.querySelectorAll('.config-container mdui-select').forEach(select => {
-        const attrKey = select.dataset.attrKey;
-        if (!attrKey) return;
-
-        const value = data?.[attrKey] ?? select.defaultValue;
+        const key = select.dataset.configKey;
+        if (!key) return;
+        const value = data?.[key] ?? select.defaultValue;
 
         if (select.multiple) {
             try { select.value = JSON.parse(value); }

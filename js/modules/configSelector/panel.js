@@ -641,9 +641,8 @@ export const createConfigSelectorPanel = () => {
     }
 
     const resetConfigUI = () => {
-        state.dialog.querySelectorAll('.config-mode-group').forEach(group => {
-            group.value = 'all';
-            group.dispatchEvent(new Event('change', { bubbles: true }));
+        state.dialog.querySelectorAll('mdui-radio-group').forEach(group => {
+            group.value = group.defaultValue || group.querySelector('mdui-radio').value;
         });
 
         state.dialog.querySelectorAll('mdui-select').forEach(select => {

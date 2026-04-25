@@ -260,11 +260,11 @@
         <!-- 配置标签页 -->
         <mdui-tabs class="config-tabs" value="tab-hero">
             <mdui-tab value="tab-hero">英雄属性</mdui-tab>
-            <mdui-tab value="tab-minion">兵线与野怪</mdui-tab>
-            <mdui-tab value="tab-tower">防御塔与水晶</mdui-tab>
+            <mdui-tab value="tab-minionAndMonster">兵线与野怪</mdui-tab>
+            <mdui-tab value="tab-towerAndCrystal">防御塔与水晶</mdui-tab>
 
             <!-- 英雄属性面板 -->
-            <mdui-tab-panel slot="panel" value="tab-hero" class="config-panel hero-config-panel" data-tab-key="hero">
+            <mdui-tab-panel slot="panel" value="tab-hero" class="config-panel hero-config-panel">
                 <mdui-radio-group class="config-mode-group" value="all">
                     <mdui-radio value="all">全局统一</mdui-radio>
                     <mdui-radio value="team">按阵营</mdui-radio>
@@ -289,8 +289,7 @@
             </mdui-tab-panel>
 
             <!-- 兵线与野怪面板 -->
-            <mdui-tab-panel slot="panel" value="tab-minion" class="config-panel minion-config-panel"
-                data-tab-key="minion">
+            <mdui-tab-panel slot="panel" value="tab-minionAndMonster" class="config-panel minionAndMonster-config-panel">
                 <mdui-radio-group class="config-mode-group" value="all">
                     <mdui-radio value="all">全局统一</mdui-radio>
                     <mdui-radio value="team">按阵营</mdui-radio>
@@ -302,11 +301,11 @@
                 </mdui-radio-group>
 
                 <!-- 兵线与野怪属性配置容器 -->
-                <div class="config-container minion"></div>
+                <div class="config-container minionAndMonster"></div>
             </mdui-tab-panel>
 
             <!-- 防御塔与水晶面板 -->
-            <mdui-tab-panel slot="panel" value="tab-tower" class="config-panel tower-config-panel" data-tab-key="tower">
+            <mdui-tab-panel slot="panel" value="tab-towerAndCrystal" class="config-panel towerAndCrystal-config-panel">
                 <mdui-radio-group class="config-mode-group" value="all">
                     <mdui-radio value="all">全局统一</mdui-radio>
                     <mdui-radio value="team">按阵营</mdui-radio>
@@ -318,7 +317,7 @@
                 </mdui-radio-group>
 
                 <!-- 防御塔与水晶属性配置容器 -->
-                <div class="config-container tower"></div>
+                <div class="config-container towerAndCrystal"></div>
             </mdui-tab-panel>
         </mdui-tabs>
 

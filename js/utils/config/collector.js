@@ -45,9 +45,10 @@ function filterDefaultValues(data) {
     if (!data || typeof data !== 'object') return data;
 
     const filtered = {};
-    Object.entries(data).forEach(([attrKey, value]) => {
-        if (!isDefaultValueByKey(attrKey, value)) {
-            filtered[attrKey] = value;
+    Object.entries(data).forEach(([flatKey, value]) => {
+        const [, attrKey] = flatKey.split('.');
+        if (attrKey && !isDefaultValueByKey(attrKey, value)) {
+            filtered[flatKey] = value;
         }
     });
     return filtered;

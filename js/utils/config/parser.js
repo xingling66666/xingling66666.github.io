@@ -10,8 +10,12 @@ import {
     getGameIds,
     getDefaultValueByKey,
     DEFAULT_VICTORY,
+    DEFAULT_VALUE,
     UI_SECTIONS,
-    buildFullConfig
+    buildFullConfig,
+    getAttributesByCategory,
+    parseFlatKey,
+    isDefaultValueByKey
 } from './constants.js';
 import * as heroData from '../../data/heroData.js';
 import { compressConfig } from './compressor.js';
@@ -71,7 +75,7 @@ export function customItemsToText(items, playerCount = 5) {
     return lines.join('\n\n');
 }
 
-// ============ 通用分类解析 ============
+// ============ 通用分类解析（文本显示） ============
 
 function parseCategoryItems(itemMap, attributes) {
     const result = { blue: {}, red: {} };
@@ -82,7 +86,8 @@ function parseCategoryItems(itemMap, attributes) {
             // 取第一个 ID 的值（所有 ID 的值应该相同）
             const value = itemMap.get(String(gameIds[0]));
 
-            if (value !== undefined) {
+            // 防御性检查：理论上游戏配置不包含默认值，但兼容异常情况
+            if (value !== undefined && parseInt(value) !== getDefaultValueByKey(attrKey)) {
                 result[side][attr.label] = attr.options[parseInt(value)] || value;
             }
         });
@@ -100,7 +105,8 @@ function parseTowerItems(itemMap) {
             // 防御塔有多个 ID，取第一个匹配到的值
             for (const id of gameIds) {
                 const value = itemMap.get(String(id));
-                if (value !== undefined) {
+                // 防御性检查：理论上游戏配置不包含默认值，但兼容异常情况
+                if (value !== undefined && parseInt(value) !== getDefaultValueByKey(attrKey)) {
                     result[side][attr.label] = attr.options[parseInt(value)] || value;
                     break;
                 }
@@ -126,7 +132,7 @@ function formatSideResult(result) {
     return lines.join('\n');
 }
 
-// ============ 英雄属性解析 ============
+// ============ 英雄属性解析（文本显示） ============
 
 function parseHeroItems(itemMap, playerCount) {
     const heroData = {};
@@ -142,12 +148,14 @@ function parseHeroItems(itemMap, playerCount) {
             for (let pos = 0; pos < playerCount; pos++) {
                 const gameIds = getGameIds(attr, side, pos);
 
-                gameIds.forEach(id => {
+                for (const id of gameIds) {
                     const value = itemMap.get(String(id));
-                    if (value !== undefined) {
+                    // 防御性检查：理论上游戏配置不包含默认值，但兼容异常情况
+                    if (value !== undefined && parseInt(value) !== getDefaultValueByKey(attrKey)) {
                         heroData[offset + pos][attr.label] = attr.options[parseInt(value)] || value;
+                        break;
                     }
-                });
+                }
             }
         });
     });
@@ -197,7 +205,7 @@ function groupHeroBySide(heroData, playerCount) {
     ].join('\n');
 }
 
-// ============ 胜利条件解析 ============
+// ============ 胜利条件解析（文本显示） ============
 
 function parseVictoryItems(itemMap) {
     // 反向遍历：当多个配置存在包含关系时，优先匹配更复杂的配置
@@ -220,7 +228,7 @@ function parseVictoryItems(itemMap) {
     return VICTORY_CONDITIONS[DEFAULT_VICTORY].label;
 }
 
-// ============ 游戏数据转网页配置 ============
+// ============ 游戏数据转网页配置（扁平化格式） ============
 
 export function parseGameDataToConfig(gameData) {
     try {
@@ -241,9 +249,9 @@ export function parseGameDataToConfig(gameData) {
 
         // 解析器映射
         const PARSER_MAP = {
-            hero: (itemMap, playerCount) => parseHeroConfigFromItems(itemMap, playerCount),
-            minionAndMonster: (itemMap) => parseCategoryConfigFromItems(itemMap, MINION_ATTRIBUTES, MONSTER_ATTRIBUTES),
-            towerAndCrystal: (itemMap) => parseCategoryConfigFromItems(itemMap, TOWER_ATTRIBUTES, CRYSTAL_ATTRIBUTES)
+            hero: () => parseHeroConfigFromItems(itemMap, playerCount),
+            minionAndMonster: () => parseMinionAndMonsterConfigFromItems(itemMap),
+            towerAndCrystal: () => parseTowerAndCrystalConfigFromItems(itemMap)
         };
 
         const uiConfig = { victory: parseVictoryConfigFromItems(itemMap) };
@@ -251,7 +259,7 @@ export function parseGameDataToConfig(gameData) {
         UI_SECTIONS.forEach(section => {
             const { tabKey } = section;
             if (PARSER_MAP[tabKey]) {
-                uiConfig[tabKey] = PARSER_MAP[tabKey](itemMap, playerCount);
+                uiConfig[tabKey] = PARSER_MAP[tabKey]();
             } else {
                 alert(`没有对应的解析器: ${tabKey}`);
                 throw new Error(`没有找到 tabKey 对应的解析器: ${tabKey}`);
@@ -276,7 +284,7 @@ export function parseGameDataToConfig(gameData) {
     }
 }
 
-// ============ 配置解析辅助函数 ============
+// ============ 英雄配置解析（扁平化格式） ============
 
 function parseHeroConfigFromItems(itemMap, playerCount) {
     const playerValues = {
@@ -290,13 +298,18 @@ function parseHeroConfigFromItems(itemMap, playerCount) {
         Object.entries(HERO_ATTRIBUTES).forEach(([attrKey, attr]) => {
             for (let pos = 0; pos < playerCount; pos++) {
                 const gameIds = getGameIds(attr, side, pos);
+                const flatKey = `hero.${attrKey}`;
 
-                gameIds.forEach(id => {
+                for (const id of gameIds) {
                     const value = itemMap.get(String(id));
                     if (value !== undefined) {
-                        teamData[pos][attrKey] = value;
+                        const numValue = parseInt(value, 10);
+                        if (numValue !== getDefaultValueByKey(attrKey)) {
+                            teamData[pos][flatKey] = value;
+                        }
+                        break;
                     }
-                });
+                }
             }
         });
     });
@@ -306,54 +319,96 @@ function parseHeroConfigFromItems(itemMap, playerCount) {
 
 function detectHeroMode(playerValues, playerCount) {
     const { blue, red } = playerValues;
-    const firstPlayer = blue[0];
+
+    // 防御性检查：理论上游戏配置不包含默认值，但兼容异常情况
+    // 过滤空对象
+    const filterEmpty = (arr) => arr.map(obj => {
+        const filtered = {};
+        Object.entries(obj).forEach(([k, v]) => {
+            if (v !== undefined && parseInt(v) !== DEFAULT_VALUE) {
+                filtered[k] = v;
+            }
+        });
+        return filtered;
+    });
+
+    const filteredBlue = filterEmpty(blue);
+    const filteredRed = filterEmpty(red);
+
+    // 检查是否全部为空
+    const allEmpty = filteredBlue.every(p => Object.keys(p).length === 0) &&
+        filteredRed.every(p => Object.keys(p).length === 0);
+    if (allEmpty) {
+        return { mode: 'all', data: {} };
+    }
+
+    const firstPlayer = filteredBlue[0];
 
     // 检查是否全部相同
-    const allSame = [...blue, ...red].every(p => deepEqual(p, firstPlayer));
-
-    if (allSame) {
+    const allSame = [...filteredBlue, ...filteredRed].every(p => deepEqual(p, firstPlayer));
+    if (allSame && Object.keys(firstPlayer).length > 0) {
         return { mode: 'all', data: firstPlayer };
     }
 
     // 检查蓝红各自内部是否相同
-    const blueSame = blue.every(p => deepEqual(p, blue[0]));
-    const redSame = red.every(p => deepEqual(p, red[0]));
+    const blueSame = filteredBlue.every(p => deepEqual(p, filteredBlue[0]));
+    const redSame = filteredRed.every(p => deepEqual(p, filteredRed[0]));
 
-    if (blueSame && redSame) {
+    if (blueSame && redSame && (Object.keys(filteredBlue[0]).length > 0 || Object.keys(filteredRed[0]).length > 0)) {
         return {
             mode: 'team',
-            data: { blue: blue[0], red: red[0] }
+            data: { blue: filteredBlue[0], red: filteredRed[0] }
         };
     }
 
     return {
         mode: 'player',
-        data: { blue, red }
+        data: { blue: filteredBlue, red: filteredRed }
     };
 }
 
-function parseCategoryConfigFromItems(itemMap, mainAttrs, secondaryAttrs = null) {
-    const collectValues = (side, attributes) => {
-        const values = {};
+// ============ 兵线+野怪配置解析（扁平化格式） ============
 
-        Object.entries(attributes).forEach(([attrKey, attr]) => {
-            const gameIds = getGameIds(attr, side);
-            const value = itemMap.get(String(gameIds[0]));
+function parseMinionAndMonsterConfigFromItems(itemMap) {
+    const blueValues = {};
+    const redValues = {};
 
-            values[attrKey] = value !== undefined
-                ? value
-                : String(getDefaultValueByKey(attrKey));
-        });
+    // 解析兵线属性
+    Object.entries(MINION_ATTRIBUTES).forEach(([attrKey, attr]) => {
+        const flatKey = `minion.${attrKey}`;
 
-        return values;
-    };
+        const blueGameIds = getGameIds(attr, 'blue');
+        const blueValue = itemMap.get(String(blueGameIds[0]));
+        if (blueValue !== undefined && parseInt(blueValue) !== getDefaultValueByKey(attrKey)) {
+            blueValues[flatKey] = blueValue;
+        }
 
-    const blueValues = collectValues('blue', mainAttrs);
-    const redValues = collectValues('red', mainAttrs);
+        const redGameIds = getGameIds(attr, 'red');
+        const redValue = itemMap.get(String(redGameIds[0]));
+        if (redValue !== undefined && parseInt(redValue) !== getDefaultValueByKey(attrKey)) {
+            redValues[flatKey] = redValue;
+        }
+    });
 
-    if (secondaryAttrs) {
-        Object.assign(blueValues, collectValues('blue', secondaryAttrs));
-        Object.assign(redValues, collectValues('red', secondaryAttrs));
+    // 解析野怪属性
+    Object.entries(MONSTER_ATTRIBUTES).forEach(([attrKey, attr]) => {
+        const flatKey = `monster.${attrKey}`;
+
+        const blueGameIds = getGameIds(attr, 'blue');
+        const blueValue = itemMap.get(String(blueGameIds[0]));
+        if (blueValue !== undefined && parseInt(blueValue) !== getDefaultValueByKey(attrKey)) {
+            blueValues[flatKey] = blueValue;
+        }
+
+        const redGameIds = getGameIds(attr, 'red');
+        const redValue = itemMap.get(String(redGameIds[0]));
+        if (redValue !== undefined && parseInt(redValue) !== getDefaultValueByKey(attrKey)) {
+            redValues[flatKey] = redValue;
+        }
+    });
+
+    if (Object.keys(blueValues).length === 0 && Object.keys(redValues).length === 0) {
+        return { mode: 'all', data: {} };
     }
 
     if (deepEqual(blueValues, redValues)) {
@@ -363,8 +418,68 @@ function parseCategoryConfigFromItems(itemMap, mainAttrs, secondaryAttrs = null)
     return { mode: 'team', data: { blue: blueValues, red: redValues } };
 }
 
+// ============ 防御塔+水晶配置解析（扁平化格式） ============
+
+function parseTowerAndCrystalConfigFromItems(itemMap) {
+    const blueValues = {};
+    const redValues = {};
+
+    // 解析防御塔属性
+    Object.entries(TOWER_ATTRIBUTES).forEach(([attrKey, attr]) => {
+        const flatKey = `tower.${attrKey}`;
+
+        const blueGameIds = getGameIds(attr, 'blue');
+        for (const id of blueGameIds) {
+            const value = itemMap.get(String(id));
+            if (value !== undefined && parseInt(value) !== getDefaultValueByKey(attrKey)) {
+                blueValues[flatKey] = value;
+                break;
+            }
+        }
+
+        const redGameIds = getGameIds(attr, 'red');
+        for (const id of redGameIds) {
+            const value = itemMap.get(String(id));
+            if (value !== undefined && parseInt(value) !== getDefaultValueByKey(attrKey)) {
+                redValues[flatKey] = value;
+                break;
+            }
+        }
+    });
+
+    // 解析水晶属性
+    Object.entries(CRYSTAL_ATTRIBUTES).forEach(([attrKey, attr]) => {
+        const flatKey = `crystal.${attrKey}`;
+
+        const blueGameIds = getGameIds(attr, 'blue');
+        const blueValue = itemMap.get(String(blueGameIds[0]));
+        if (blueValue !== undefined && parseInt(blueValue) !== getDefaultValueByKey(attrKey)) {
+            blueValues[flatKey] = blueValue;
+        }
+
+        const redGameIds = getGameIds(attr, 'red');
+        const redValue = itemMap.get(String(redGameIds[0]));
+        if (redValue !== undefined && parseInt(redValue) !== getDefaultValueByKey(attrKey)) {
+            redValues[flatKey] = redValue;
+        }
+    });
+
+    if (Object.keys(blueValues).length === 0 && Object.keys(redValues).length === 0) {
+        return { mode: 'all', data: {} };
+    }
+
+    if (deepEqual(blueValues, redValues)) {
+        return { mode: 'all', data: blueValues };
+    }
+
+    return { mode: 'team', data: { blue: blueValues, red: redValues } };
+}
+
+// ============ 胜利条件解析 ============
+
 function parseVictoryConfigFromItems(itemMap) {
     // 反向遍历：当多个配置存在包含关系时，优先匹配更复杂的配置
+    // 例如配置10 {19:2,105:1,104:2} 包含配置8 {19:2,105:1}，先检查10可避免误匹配
     const indexes = VICTORY_CONDITIONS.map(c => c.value)
         .filter(idx => idx !== 0)  // 排除索引0，空对象{}会匹配任何情况，需特殊处理
         .sort((a, b) => b - a);    // 降序排列
