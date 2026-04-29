@@ -181,8 +181,7 @@ export function handleTutorial() {
  */
 export function handleMoreLinks() {
     const links = [
-        { name: '小王自定义', url: 'https://xl.xlskw.cn/' },
-        { name: '小王开局助手v1.0', url: 'https://wz.yzre.cn/' }
+       
     ];
 
     const body = createElement('div');
@@ -212,7 +211,7 @@ export function handleMoreLinks() {
  * QQ群
  */
 export function handleQQGroup() {
-    copyText('746855036');
+   open("https://qm.qq.com/q/YOjIYbOaae");
 }
 
 /**
