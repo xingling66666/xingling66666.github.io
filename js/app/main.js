@@ -102,36 +102,6 @@ async function onWindowLoad() {
 /**
  * 显示欢迎提示
  */
-function showWelcomeTips() {
-    // 免费提示（仅首次显示）
-    if (storage.getFreeTip() !== '0.1') {
-        showDialog({
-            headline: '提示',
-            description: TIPS.FREE_TIP,
-            actions: [
-                {
-                    text: '复制开源链接',
-                    onClick: () => {
-                        navigator.clipboard?.writeText('https://github.com/huajiqaq/wzzdy');
-                        return true;
-                    }
-                },
-                { text: '我知道了' }
-            ],
-            onClose: () => storage.setFreeTip('0.1')
-        });
-    }
-
-    // 创建提示（仅首次显示）
-    if (storage.getCreateTip() !== '0.1') {
-        showAlert({
-            headline: '提示',
-            description: TIPS.CREATE_TIP,
-            confirmText: '我知道了',
-            onConfirm: () => storage.setCreateTip('0.1')
-        });
-    }
-}
 
 /**
  * 初始化数据
