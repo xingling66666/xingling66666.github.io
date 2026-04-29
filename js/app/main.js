@@ -95,7 +95,7 @@ async function onWindowLoad() {
     const title = document.querySelector('.app-title');
     const version = await getSWVersion();
     if (title) {
-        title.textContent = `王者自定义房间 ${version}`;
+        title.textContent = `星灵创房工具 ${version}`;
     }
 }
 
