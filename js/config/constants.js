@@ -53,7 +53,7 @@ export const HERO_LEVELS = ["1级", "4级", "5级", "8级", "10级", "12级", "1
 export const MAGIC_ATTACK_BONUS = ["无加成", "加10%", "加25%", "加50%", "加75%", "加100%"];
 export const PHYSICAL_ATTACK_BONUS = ["无加成", "加10%", "加25%", "加50%", "加75%", "加100%"];
 export const COOLDOWN_REDUCTION = ["无加成", "减25%", "减40%", "减80%", "减99%"];
-export const INIT_GOLD = ["无加成", "1000", "2000", "5000", "12000"];
+export const INIT_GOLD = ["无加成", "1000", "2000", "5000", "12000", "20000"];
 export const MOVE_SPEED = ["无加成", "加10%", "加20%", "加30%"];
 
 export const lastCustomVersion = 1;

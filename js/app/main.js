@@ -191,3 +191,9 @@ export default {
     getAppState,
     isAppInitialized
 };
+if (window.location.protocol !== "https" && window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost") {
+  mdui.alert({
+    headline: "提示",
+    description: "当前处于非https环境下，sw.js将无法使用，这意味着将无法向用户同步更新"
+  })
+}

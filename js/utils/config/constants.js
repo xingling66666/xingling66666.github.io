@@ -76,7 +76,7 @@ export const HERO_ATTRIBUTES = {
 
     gold: {
         label: '初始金币',
-        options: ['无加成', '1000', '2000', '5000', '12000'],
+        options: ['无加成', '1000', '2000', '5000', '12000', "20000"],
         defaultValue: 0,
         totalCount: 10,
         ids: {
