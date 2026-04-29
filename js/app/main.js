@@ -197,3 +197,67 @@ if (window.location.protocol !== "https:" && window.location.hostname !== "127.0
     description: "当前处于非https环境下，sw.js将无法使用，这意味着将无法向用户同步更新"
   })
 }
+// 在 main.js 或页面中添加
+if ('serviceWorker' in navigator) {
+    let refreshing = false;
+    
+    // 监听 SW 发来的消息
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'SW_UPDATED') {
+            console.log('收到 SW 更新通知:', event.data.version);
+            // 提示用户刷新
+            if (confirm(`发现新版本 ${event.data.version}，是否刷新页面？`)) {
+                refreshing = true;
+                window.location.reload();
+            }
+        }
+    });
+    
+    // 监听 SW 控制权变化
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+    });
+    
+    // 注册 SW 并检查更新
+    async function registerSW() {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('SW 注册成功');
+            
+            // 定期检查更新（每小时一次）
+            setInterval(() => {
+                registration.update();
+                console.log('检查 SW 更新');
+            }, 60 * 60 * 1000);
+            
+            // 检查是否有等待中的 SW
+            if (registration.waiting) {
+                console.log('发现等待中的 SW');
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            
+            // 监听新 SW
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('发现新 SW:', newWorker);
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('新 SW 已安装，等待激活');
+                        // 提示用户更新
+                        if (confirm('发现新版本，是否立即更新？')) {
+                            newWorker.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                    }
+                });
+            });
+            
+        } catch (err) {
+            console.error('SW 注册失败:', err);
+        }
+    }
+    
+    registerSW();
+}
