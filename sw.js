@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1.0.1';
+const CACHE_VERSION = 'v1.0.2';
 const CACHE_NAME = `my-pwa-${CACHE_VERSION}`;
 
 // 需要缓存的第三方资源域名列表
