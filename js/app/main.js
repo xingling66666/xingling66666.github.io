@@ -37,7 +37,7 @@ async function initApp() {
         bindWindowEvents();
 
         // 2. 显示欢迎提示
-        showWelcomeTips();
+
 
         // 3. 初始化数据
         await initData();
