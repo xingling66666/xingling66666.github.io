@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v0.1.3';  // 改这里就能触发清理
+const CACHE_VERSION = 'v1.0';  // 改这里就能触发清理
 const CACHE_NAME = `my-pwa-${CACHE_VERSION}`;
 
 // 需要缓存的第三方资源域名列表
