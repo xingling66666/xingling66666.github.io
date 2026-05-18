@@ -5,7 +5,7 @@ const API_CONFIG = {
     // 英雄数据 API
     HERO_API: 'https://ouwhiy7vaifi44w6ee26vxikny0bzigt.lambda-url.ap-east-1.on.aws/getheros',
     // 短链接 API
-    SHORT_LINK_API: 'https://api.mmp.cc/api/dwz?longurl=',
+    SHORT_LINK_API: 'https://tools.mgtv100.com/external/v1/short_urls?url=',
     // 请求超时时间
     TIMEOUT: 30000
 };
@@ -158,7 +158,7 @@ export async function fetchHeroData() {
  * @returns {Promise<string>}
  */
 export async function getShortLink(longUrl) {
-    // 检查是否为 HTTP 或 HTTPS 链接
+/*    // 检查是否为 HTTP 或 HTTPS 链接
     const isHttps = longUrl.startsWith('https://');
     const isHttp = longUrl.startsWith('http://');
     
@@ -167,13 +167,7 @@ export async function getShortLink(longUrl) {
         return longUrl;
     }
     
-    // 如果不是 HTTPS，提示用户可能生成失败
-    if (!isHttps) {
-        const confirmed = confirm('当前链接不是 HTTPS 协议，部分短链接 API 仅支持 HTTPS，可能生成失败。\n是否继续？取消将放弃生成短链接，使用长连接。');
-        if (!confirmed) {
-            return longUrl;
-        }
-    }
+    
 
     try {
         const url = `${API_CONFIG.SHORT_LINK_API}${encodeURIComponent(longUrl)}`;
@@ -189,7 +183,8 @@ export async function getShortLink(longUrl) {
         console.error('获取短链接失败:', error);
         alert('短链接生成失败，将使用原链接');
         return longUrl;
-    }
+    }*/
+    return longUrl
 }
 
 /**
