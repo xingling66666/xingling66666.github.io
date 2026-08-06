@@ -1,1 +1,1 @@
-print('饿啊')
+print(gg)
