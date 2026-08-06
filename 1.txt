@@ -1,1 +1,1 @@
-print('success')
+print('更新成功')
